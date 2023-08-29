@@ -145,10 +145,10 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Create HashiCups API Client",
-			"An unexpected error occurred when creating the HashiCups API client. "+
+			"Unable to Create OPSWAT API Client",
+			"An unexpected error occurred when creating the OPSWAT API client. "+
 				"If the error is not clear, please contact the provider developers.\n\n"+
-				"HashiCups Client Error: "+err.Error(),
+				"OPSWAT Client Error: "+err.Error(),
 		)
 		return
 	}
@@ -161,7 +161,9 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 // DataSources defines the data sources implemented in the provider.
 func (p *opswatProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		NewGlobalSyncDataSource,
+	}
 }
 
 // Resources defines the resources implemented in the provider.

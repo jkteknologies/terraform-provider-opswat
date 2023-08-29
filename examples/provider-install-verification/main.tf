@@ -6,6 +6,9 @@ terraform {
   }
 }
 
-provider "opswat" {}
+provider "opswat" {
+  host   = "opswat.dev.av.swissre.cn"
+  apikey = "8d47ca941d0cce586ea6c878d28c7fdb84c3"
+}
 
-data "opswat_test" "example" {}
+data "globalSync" "example" {}
