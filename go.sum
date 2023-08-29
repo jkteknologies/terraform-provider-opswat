@@ -48,6 +48,8 @@ github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/hashicorp-demoapp/hashicups-client-go v0.1.0 h1:5eUmjDEqF4viZHLwS9UKSqwDHJ2T9ZQamqSf5dn+qcE=
+github.com/hashicorp-demoapp/hashicups-client-go v0.1.0/go.mod h1:fJF8CZhWlImByx49t7RZvuoxskStDwqIWi5/GOSJqGI=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/errwrap v1.1.0 h1:OxrOeh75EUXMY8TBjag2fzXGZ40LB6IKw45YeGUDY2I=
 github.com/hashicorp/errwrap v1.1.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
@@ -92,8 +94,6 @@ github.com/hashicorp/terraform-plugin-sdk/v2 v2.27.0 h1:I8efBnjuDrgPjNF1MEypHy48
 github.com/hashicorp/terraform-plugin-sdk/v2 v2.27.0/go.mod h1:cUEP4ly/nxlHy5HzD6YRrHydtlheGvGRJDhiWqqVik4=
 github.com/hashicorp/terraform-plugin-testing v1.4.0 h1:DVIXxw7VHZvnwWVik4HzhpC2yytaJ5FpiHxz5debKmE=
 github.com/hashicorp/terraform-plugin-testing v1.4.0/go.mod h1:b7Bha24iGrbZQjT+ZE8m9crck1YjdVOZ8mfGCQ19OxA=
-github.com/hashicorp/terraform-provider-scaffolding-framework v0.0.0-20230821073919-a703ef27bdf8 h1:YRDrlSf9249DDO9owNA7AwZnABBSz+euEpMnQWRT/84=
-github.com/hashicorp/terraform-provider-scaffolding-framework v0.0.0-20230821073919-a703ef27bdf8/go.mod h1:sHl8IBtRBjZLM4bWAA/JN5lTXgvPGITuOKK07YOMdFM=
 github.com/hashicorp/terraform-registry-address v0.2.1 h1:QuTf6oJ1+WSflJw6WYOHhLgwUiQ0FrROpHPYFtwTYWM=
 github.com/hashicorp/terraform-registry-address v0.2.1/go.mod h1:BSE9fIFzp0qWsJUUyGquo4ldV9k2n+psif6NYkBRS3Y=
 github.com/hashicorp/terraform-svchost v0.1.1 h1:EZZimZ1GxdqFRinZ1tpJwVxxt49xc/S52uzrw4x0jKQ=
