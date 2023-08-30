@@ -1,4 +1,4 @@
-package provider
+package opswatProvider
 
 import (
 	"context"
@@ -42,19 +42,32 @@ func (d *globalSyncDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 	}
 }
 
-// timeouts maps the data source schema data.
-type timeoutsDataSourceModel struct {
-	Timeout timeoutsModel `tfsdk:"timeout"`
+func (d *globalSyncDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*opswatClient.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *opswatClient.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
 }
 
-// timeouts maps coffees schema data.
-type timeoutsModel struct {
+// timeouts maps timeout schema data.
+type timeoutModel struct {
 	Timeout types.Int64 `tfsdk:"timeout"`
 }
 
 // Read refreshes the Terraform state with the latest data.
 func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state timeoutsDataSourceModel
+	var state timeoutModel
 
 	result, err := d.client.GetGlobalSync()
 	if err != nil {
@@ -65,11 +78,9 @@ func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	timeoutState := timeoutsModel{
-		Timeout: types.Int64Value(int64(result.Timeout)),
-	}
+	//fmt.Println(types.Int64Value(int64(result.Timeout)))
 
-	state.Timeout = timeoutState
+	state.Timeout = types.Int64Value(int64(result.Timeout))
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)
@@ -77,22 +88,4 @@ func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-func (d *globalSyncDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	client, ok := req.ProviderData.(*opswatClient.Client)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *hashicups.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	d.client = client
 }

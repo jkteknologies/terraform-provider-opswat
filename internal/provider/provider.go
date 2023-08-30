@@ -1,4 +1,4 @@
-package provider
+package opswatProvider
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"os"
 	opswatClient "terraform-provider-opswat/internal/client"
 )
@@ -61,6 +62,9 @@ type opswatProviderModel struct {
 }
 
 func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+
+	tflog.Info(ctx, "Configuring OPSWAT client")
+
 	// Retrieve provider data from configuration
 	var config opswatProviderModel
 	diags := req.Config.Get(ctx, &config)
@@ -107,6 +111,12 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	if !config.Apikey.IsNull() {
 		apikey = config.Apikey.ValueString()
 	}
+
+	ctx = tflog.SetField(ctx, "OPSWAT_HOST", host)
+	ctx = tflog.SetField(ctx, "OPSWAT_APIKEY", apikey)
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "OPSWAT_APIKEY")
+
+	tflog.Debug(ctx, "Creating OPSWAT client")
 
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
@@ -157,6 +167,8 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	// type Configure methods.
 	resp.DataSourceData = client
 	resp.ResourceData = client
+
+	tflog.Info(ctx, "Configured OPSWAT client", map[string]any{"success": true})
 }
 
 // DataSources defines the data sources implemented in the provider.

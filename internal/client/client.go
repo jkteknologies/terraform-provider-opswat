@@ -1,7 +1,6 @@
 package opswatClient
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -41,7 +40,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 
 	req.Header.Set("apikey", c.Apikey)
 
-	fmt.Println("apikey for req: " + c.Apikey)
+	//fmt.Println("apikey for req: " + c.Apikey)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -59,37 +58,4 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	}
 
 	return body, err
-}
-
-// GetGlobalSync - Returns list of coffees (no auth required)
-func (c *Client) GetGlobalSync() (*Timeout, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/file/sync", c.HostURL), nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/file/sync", c.HostURL))
-
-	body, err := c.doRequest(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("body output: " + fmt.Sprintf("%s", body))
-
-	result := Timeout{}
-
-	err = json.Unmarshal(body, &result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("timeout output: " + fmt.Sprintf("%d", result))
-
-	fmt.Println("err output: " + fmt.Sprintf("%d", err))
-
-	return &result, nil
 }

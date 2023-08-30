@@ -11,4 +11,8 @@ provider "opswat" {
   apikey = "8d47ca941d0cce586ea6c878d28c7fdb84c3"
 }
 
-data "opswat_globalSync" "example" {}
+data "opswat_globalSync" "current" {}
+
+output "opswat_globalSync_timeout" {
+  value = data.opswat_globalSync.current
+}
