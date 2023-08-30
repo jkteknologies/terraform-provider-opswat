@@ -33,9 +33,11 @@ func (r *globalSync) Metadata(_ context.Context, req resource.MetadataRequest, r
 // Schema defines the schema for the resource.
 func (r *globalSync) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
 			"timeout": schema.Int64Attribute{
-				Required: true,
+				Description: "Global file sync can timeout.",
+				Required:    true,
 			},
 		},
 	}

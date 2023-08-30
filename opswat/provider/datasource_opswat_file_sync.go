@@ -33,9 +33,11 @@ func (d *globalSyncDataSource) Metadata(_ context.Context, req datasource.Metada
 // Schema defines the schema for the data source.
 func (d *globalSyncDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Global file sync can timeout datasource.",
 		Attributes: map[string]schema.Attribute{
 			"timeout": schema.Int64Attribute{
-				Computed: true,
+				Description: "Global file sync can timeout.",
+				Computed:    true,
 			},
 		},
 	}

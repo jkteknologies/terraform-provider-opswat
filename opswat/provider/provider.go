@@ -44,12 +44,15 @@ func (p *opswatProvider) Metadata(_ context.Context, _ provider.MetadataRequest,
 // Schema defines the provider-level schema for configuration data.
 func (p *opswatProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Interact with OPSWAT.",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
-				Required: true,
+				Description: "URI for OPSWAT API. May also be provided via OPSWAT_HOST environment variable.",
+				Required:    true,
 			},
 			"apikey": schema.StringAttribute{
-				Required: true,
+				Description: "API KEY for OPSWAT API. May also be provided via OPSWAT_APIKEY environment variable.",
+				Required:    true,
 			},
 		},
 	}
