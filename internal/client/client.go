@@ -71,8 +71,6 @@ func (c *Client) GetGlobalSync() (*Timeout, error) {
 
 	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/file/sync", c.HostURL))
 
-	result := Timeout{}
-
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -81,13 +79,15 @@ func (c *Client) GetGlobalSync() (*Timeout, error) {
 
 	fmt.Println("body output: " + fmt.Sprintf("%s", body))
 
+	result := Timeout{}
+
 	err = json.Unmarshal(body, &result)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("timeout output: " + fmt.Sprintf("%d", &result))
+	fmt.Println("timeout output: " + fmt.Sprintf("%d", result))
 
 	fmt.Println("err output: " + fmt.Sprintf("%d", err))
 

@@ -65,15 +65,9 @@ func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	// Map response body to model
 	timeoutState := timeoutsModel{
 		Timeout: types.Int64Value(int64(result.Timeout)),
 	}
-
-	fmt.Println("result output: " + fmt.Sprintf("%d", result))
-
-	var test = types.Int64Value(int64(result.Timeout))
-	fmt.Println("test output: " + fmt.Sprintf("%d", test))
 
 	state.Timeout = timeoutState
 
