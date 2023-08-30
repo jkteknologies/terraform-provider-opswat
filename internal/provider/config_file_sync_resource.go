@@ -27,7 +27,7 @@ type globalSync struct {
 
 // Metadata returns the resource type name.
 func (r *globalSync) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_globalSync"
+	resp.TypeName = req.ProviderTypeName + "_global_sync"
 }
 
 // Schema defines the schema for the resource.

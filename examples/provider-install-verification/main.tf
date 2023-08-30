@@ -14,12 +14,12 @@ provider "opswat" {
   apikey = "8d47ca941d0cce586ea6c878d28c7fdb84c3"
 }
 
-resource "opswat_globalSync" "new" {
-  timeout = 30
+resource "opswat_global_sync" "new" {
+  timeout = 10
 }
 
-#data "opswat_globalSyncDS" "current" {}
-#
-#output "opswat_globalSyncDS" {
-#  value = data.opswat_globalSyncDS.current
-#}
+data "opswat_global_sync" "current" {}
+
+output "opswat_global_sync" {
+  value = data.opswat_global_sync.current
+}
