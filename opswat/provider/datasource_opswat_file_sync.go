@@ -27,7 +27,7 @@ type globalSyncDataSource struct {
 
 // Metadata returns the data source type name.
 func (d *globalSyncDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_global_sync"
+	resp.TypeName = req.ProviderTypeName + "_file_sync"
 }
 
 // Schema defines the schema for the data source.

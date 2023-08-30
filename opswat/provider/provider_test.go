@@ -12,9 +12,8 @@ const (
 	// such as updating the Makefile and running the testing through that tool.
 	providerConfig = `
 provider "opswat" {
-  username = "education"
-  password = "test123"
-  host     = "http://localhost:19090"
+  apikey = "abc"
+  host   = "https://localhost"
 }
 `
 )
@@ -25,6 +24,6 @@ var (
 	// CLI command executed to create a provider server to which the CLI can
 	// reattach.
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-		"hashicups": providerserver.NewProtocol6WithError(New("test")()),
+		"opswat": providerserver.NewProtocol6WithError(New("test")()),
 	}
 )
