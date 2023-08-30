@@ -150,9 +150,6 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	// init http request
 	client, err := opswatClient.NewClient(&host, &apikey)
 
-	//resp, err := client.Get("https://opswat.dev.av.swissre.cn/admin/config/rule")
-	//req.Header.Add("apikey", &apikey))
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create OPSWAT API Client",
@@ -180,5 +177,7 @@ func (p *opswatProvider) DataSources(_ context.Context) []func() datasource.Data
 
 // Resources defines the resources implemented in the provider.
 func (p *opswatProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		NewGlobalSync,
+	}
 }

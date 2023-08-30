@@ -3,11 +3,10 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/client"
-
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	opswatClient "terraform-provider-opswat/internal/client"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -28,7 +27,7 @@ type globalSyncDataSource struct {
 
 // Metadata returns the data source type name.
 func (d *globalSyncDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_globalSync"
+	resp.TypeName = req.ProviderTypeName + "_globalSyncDS"
 }
 
 // Schema defines the schema for the data source.
