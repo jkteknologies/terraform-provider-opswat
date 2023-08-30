@@ -41,6 +41,8 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 
 	req.Header.Set("apikey", c.Apikey)
 
+	fmt.Println("apikey for req: " + c.Apikey)
+
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -60,22 +62,34 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 }
 
 // GetGlobalSync - Returns list of coffees (no auth required)
-func (c *Client) GetGlobalSync() ([]Timeout, error) {
+func (c *Client) GetGlobalSync() (*Timeout, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/file/sync", c.HostURL), nil)
+
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/file/sync", c.HostURL))
+
+	result := Timeout{}
 
 	body, err := c.doRequest(req)
+
 	if err != nil {
 		return nil, err
 	}
 
-	timeouts := []Timeout{}
-	err = json.Unmarshal(body, &timeouts)
+	fmt.Println("body output: " + fmt.Sprintf("%s", body))
+
+	err = json.Unmarshal(body, &result)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return timeouts, nil
+	fmt.Println("timeout output: " + fmt.Sprintf("%d", &result))
+
+	fmt.Println("err output: " + fmt.Sprintf("%d", err))
+
+	return &result, nil
 }

@@ -44,19 +44,19 @@ func (d *globalSyncDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 
 // timeouts maps the data source schema data.
 type timeoutsDataSourceModel struct {
-	Timeouts []timeoutsModel `tfsdk:"timeouts"`
+	Timeout timeoutsModel `tfsdk:"timeout"`
 }
 
 // timeouts maps coffees schema data.
 type timeoutsModel struct {
-	Timeout types.Int64 `tfsdk:"timeouts"`
+	Timeout types.Int64 `tfsdk:"timeout"`
 }
 
 // Read refreshes the Terraform state with the latest data.
 func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state timeoutsModel
+	var state timeoutsDataSourceModel
 
-	timeouts, err := d.client.GetGlobalSync()
+	result, err := d.client.GetGlobalSync()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read OPSWAT Global sync timeout",
@@ -66,13 +66,16 @@ func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	// Map response body to model
-	for _, timeout := range timeouts {
-		timeoutState := timeoutsModel{
-			Timeout: types.Int64Value(int64(timeout.Timeout)),
-		}
-
-		state.Timeouts = append(state.Timeouts, timeoutState)
+	timeoutState := timeoutsModel{
+		Timeout: types.Int64Value(int64(result.Timeout)),
 	}
+
+	fmt.Println("result output: " + fmt.Sprintf("%d", result))
+
+	var test = types.Int64Value(int64(result.Timeout))
+	fmt.Println("test output: " + fmt.Sprintf("%d", test))
+
+	state.Timeout = timeoutState
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)
