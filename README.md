@@ -38,7 +38,7 @@ $ go install .
 
 Using the provider
 ----------------------
-?
+tbd
 
 
 ## Developing the Provider
