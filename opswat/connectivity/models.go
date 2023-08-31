@@ -52,7 +52,7 @@ type scanQueue struct {
 }
 
 // API /admin/config/rule
-type workflow struct {
+type ConfigWorkflow struct {
 	AllowCert                                   bool          `json:"allow_cert"`
 	AllowCertCert                               string        `json:"allow_cert.cert"`
 	AllowCertCertValidity                       int           `json:"allow_cert.cert_validity"`
