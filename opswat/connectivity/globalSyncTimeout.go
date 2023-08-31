@@ -34,7 +34,7 @@ func (c *Client) GetGlobalSync() (*globalSyncTimeout, error) {
 	return &result, nil
 }
 
-// UpdateGlobalSync - Returns global sync scan timeout
+// UpdateGlobalSync - Update global sync scan timeout
 func (c *Client) UpdateGlobalSync(timeout int) (*globalSyncTimeout, error) {
 	timeoutJson := map[string]int{"timeout": timeout}
 	preparedJson, err := json.Marshal(timeoutJson)
@@ -64,7 +64,7 @@ func (c *Client) UpdateGlobalSync(timeout int) (*globalSyncTimeout, error) {
 	return &result, nil
 }
 
-// CreateGlobalSync - Returns global sync scan timeout
+// CreateGlobalSync - Creates global sync scan timeout
 func (c *Client) CreateGlobalSync(timeout int) (*globalSyncTimeout, error) {
 	timeoutJson := map[string]int{"timeout": timeout}
 	preparedJson, err := json.Marshal(timeoutJson)

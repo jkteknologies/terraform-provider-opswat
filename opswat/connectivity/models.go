@@ -6,7 +6,7 @@ type globalSyncTimeout struct {
 }
 
 // API /admin/config/session
-type configSession struct {
+type ConfigSession struct {
 	AbsoluteSessionTimeout int  `json:"absoluteSessionTimeout"`
 	AllowCrossIpSessions   bool `json:"allowCrossIpSessions"`
 	AllowDuplicateSession  bool `json:"allowDuplicateSession"`

@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-// GetGlobalSync - Returns global sync scan timeout
-func (c *Client) GetConfigSession() (*configSession, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/file/sync", c.HostURL), nil)
+// GetConfigSession - Returns session config
+func (c *Client) GetConfigSession() (*ConfigSession, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/session", c.HostURL), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/file/sync", c.HostURL))
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/session", c.HostURL))
 
 	body, err := c.doRequest(req)
 
@@ -23,7 +23,7 @@ func (c *Client) GetConfigSession() (*configSession, error) {
 		return nil, err
 	}
 
-	result := configSession{}
+	result := ConfigSession{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -34,15 +34,15 @@ func (c *Client) GetConfigSession() (*configSession, error) {
 	return &result, nil
 }
 
-// UpdateGlobalSync - Returns global sync scan timeout
-func (c *Client) UpdateConfigSession(timeout int) (*configSession, error) {
-	timeoutJson := map[string]int{"timeout": timeout}
-	preparedJson, err := json.Marshal(timeoutJson)
+// UpdateConfigSession - Updates session config
+func (c *Client) UpdateConfigSession(config ConfigSession) (*ConfigSession, error) {
+
+	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/file/sync", c.HostURL), strings.NewReader(string(preparedJson)))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/session", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *Client) UpdateConfigSession(timeout int) (*configSession, error) {
 		return nil, err
 	}
 
-	result := configSession{}
+	result := ConfigSession{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -64,15 +64,15 @@ func (c *Client) UpdateConfigSession(timeout int) (*configSession, error) {
 	return &result, nil
 }
 
-// CreateGlobalSync - Returns global sync scan timeout
-func (c *Client) CreateConfigSession(timeout int) (*configSession, error) {
-	timeoutJson := map[string]int{"timeout": timeout}
-	preparedJson, err := json.Marshal(timeoutJson)
+// CreateConfigSession - Creates session config
+func (c *Client) CreateConfigSession(config ConfigSession) (*ConfigSession, error) {
+
+	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/file/sync", c.HostURL), strings.NewReader(string(preparedJson)))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/session", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (c *Client) CreateConfigSession(timeout int) (*configSession, error) {
 		return nil, err
 	}
 
-	result := configSession{}
+	result := ConfigSession{}
 
 	err = json.Unmarshal(body, &result)
 

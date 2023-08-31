@@ -35,12 +35,32 @@ func (r *configSession) Schema(_ context.Context, _ resource.SchemaRequest, resp
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
-			"timeout": schema.Int64Attribute{
-				Description: "Global file sync can timeout.",
+			"absolutesessiontimeout": schema.Int64Attribute{
+				Description: "The interval (in milliseconds) for overall session length timeout (regardless of activity). minimal 300000. 0 - for infinity sessions.",
+				Required:    true,
+			},
+			"allowcrossipsessions": schema.BoolAttribute{
+				Description: "Allow requests from the same user to come from different IPs.",
+				Required:    true,
+			},
+			"allowduplicatesession": schema.BoolAttribute{
+				Description: "Allow same user to have multiple active sessions.",
+				Required:    true,
+			},
+			"sessiontimeout": schema.Int64Attribute{
+				Description: "The interval (in milliseconds) for the user's session timeout, based on last activity. Timer starts after the last activity for the apikey. minimal - 60000. 0 - for infinity sessions.",
 				Required:    true,
 			},
 		},
 	}
+}
+
+// timeouts maps timeout schema data.
+type configSessionModel struct {
+	AbsoluteSessionTimeout types.Int64 `tfsdk:"absolutesessiontimeout"`
+	AllowCrossIpSessions   types.Bool  `tfsdk:"allowcrossipsessions"`
+	AllowDuplicateSession  types.Bool  `tfsdk:"allowduplicatesession"`
+	SessionTimeout         types.Int64 `tfsdk:"sessiontimeout"`
 }
 
 func (r *configSession) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -65,37 +85,44 @@ func (r *configSession) Configure(_ context.Context, req resource.ConfigureReque
 // Create creates the resource and sets the initial Terraform state.
 func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan timeoutModel
+	var plan configSessionModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Generate API request body from plan
-	timeout := plan.Timeout.ValueInt64()
+	json := opswatClient.ConfigSession{
+		AbsoluteSessionTimeout: int(plan.AbsoluteSessionTimeout.ValueInt64()),
+		AllowCrossIpSessions:   bool(plan.AllowCrossIpSessions.ValueBool()),
+		AllowDuplicateSession:  bool(plan.AllowDuplicateSession.ValueBool()),
+		SessionTimeout:         int(plan.SessionTimeout.ValueInt64()),
+	}
 
 	// Update existing order
-	_, err := r.client.CreateGlobalSync(int(timeout))
+	_, err := r.client.CreateConfigSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync timeout",
+			"Error Updating OPSWAT session config",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetConfigSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT session config",
+			"Could not read OPSWAT session config "+err.Error(),
 		)
 		return
 	}
 
-	plan.Timeout = types.Int64Value(int64(result.Timeout))
+	plan.AbsoluteSessionTimeout = types.Int64Value(int64(result.AbsoluteSessionTimeout))
+	plan.AllowCrossIpSessions = types.BoolValue(result.AllowCrossIpSessions)
+	plan.AllowDuplicateSession = types.BoolValue(result.AllowDuplicateSession)
+	plan.SessionTimeout = types.Int64Value(int64(result.SessionTimeout))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -107,7 +134,7 @@ func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, 
 // Read resource information.
 func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state timeoutModel
+	var state configSessionModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -115,16 +142,19 @@ func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	// Get refreshed order value from OPSWAT
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetConfigSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT session config",
+			"Could not read OPSWAT session config "+err.Error(),
 		)
 		return
 	}
 
-	state.Timeout = types.Int64Value(int64(result.Timeout))
+	state.AbsoluteSessionTimeout = types.Int64Value(int64(result.AbsoluteSessionTimeout))
+	state.AllowCrossIpSessions = types.BoolValue(result.AllowCrossIpSessions)
+	state.AllowDuplicateSession = types.BoolValue(result.AllowDuplicateSession)
+	state.SessionTimeout = types.Int64Value(int64(result.SessionTimeout))
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -137,37 +167,44 @@ func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan timeoutModel
+	var plan configSessionModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Generate API request body from plan
-	timeout := plan.Timeout.ValueInt64()
+	json := opswatClient.ConfigSession{
+		AbsoluteSessionTimeout: int(plan.AbsoluteSessionTimeout.ValueInt64()),
+		AllowCrossIpSessions:   bool(plan.AllowCrossIpSessions.ValueBool()),
+		AllowDuplicateSession:  bool(plan.AllowDuplicateSession.ValueBool()),
+		SessionTimeout:         int(plan.SessionTimeout.ValueInt64()),
+	}
 
 	// Update existing order
-	_, err := r.client.UpdateGlobalSync(int(timeout))
+	_, err := r.client.UpdateConfigSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync timeout",
+			"Error Updating OPSWAT session config",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetConfigSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT session config",
+			"Could not read OPSWAT session config "+err.Error(),
 		)
 		return
 	}
 
-	plan.Timeout = types.Int64Value(int64(result.Timeout))
+	plan.AbsoluteSessionTimeout = types.Int64Value(int64(result.AbsoluteSessionTimeout))
+	plan.AllowCrossIpSessions = types.BoolValue(result.AllowCrossIpSessions)
+	plan.AllowDuplicateSession = types.BoolValue(result.AllowDuplicateSession)
+	plan.SessionTimeout = types.Int64Value(int64(result.SessionTimeout))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
