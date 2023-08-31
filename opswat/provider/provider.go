@@ -183,5 +183,6 @@ func (p *opswatProvider) Resources(_ context.Context) []func() resource.Resource
 	return []func() resource.Resource{
 		NewGlobalSync,
 		NewConfigSession,
+		NewConfigQuarantine,
 	}
 }

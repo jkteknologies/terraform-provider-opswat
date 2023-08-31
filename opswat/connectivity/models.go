@@ -13,6 +13,11 @@ type ConfigSession struct {
 	SessionTimeout         int  `json:"sessionTimeout"`
 }
 
+// API /admin/config/quarantine
+type ConfigQuarantine struct {
+	Cleanuprange int `json:"cleanuprange"`
+}
+
 // API /admin/license
 type license struct {
 	ActivationKey   string `json:"activation_key"`
