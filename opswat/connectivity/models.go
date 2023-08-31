@@ -1,11 +1,11 @@
 package opswatClient
 
-// API /admin/config/file/sync
+// globalSyncTimeout API /admin/config/file/sync
 type globalSyncTimeout struct {
 	Timeout int `json:"timeout"`
 }
 
-// API /admin/config/session
+// ConfigSession API /admin/config/session
 type ConfigSession struct {
 	AbsoluteSessionTimeout int  `json:"absoluteSessionTimeout"`
 	AllowCrossIpSessions   bool `json:"allowCrossIpSessions"`
@@ -13,9 +13,19 @@ type ConfigSession struct {
 	SessionTimeout         int  `json:"sessionTimeout"`
 }
 
-// API /admin/config/quarantine
+// ConfigQuarantine API /admin/config/quarantine
 type ConfigQuarantine struct {
 	Cleanuprange int `json:"cleanuprange"`
+}
+
+// ConfigUpdates API /admin/config/update
+type ConfigUpdates struct {
+	Autoupdateperiod     int           `json:"autoupdateperiod"`
+	Deleteafterimport    bool          `json:"deleteafterimport"`
+	Disabledupdate       []interface{} `json:"disabledupdate"`
+	Pickupfolder         string        `json:"pickupfolder"`
+	Skipenginedependency bool          `json:"skipenginedependency"`
+	Source               string        `json:"source"`
 }
 
 // API /admin/license
