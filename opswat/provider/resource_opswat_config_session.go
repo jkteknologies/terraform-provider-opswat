@@ -11,27 +11,27 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &globalSync{}
-	_ resource.ResourceWithConfigure = &globalSync{}
+	_ resource.Resource              = &configSession{}
+	_ resource.ResourceWithConfigure = &configSession{}
 )
 
-// NewGlobalSync is a helper function to simplify the provider implementation.
-func NewGlobalSync() resource.Resource {
-	return &globalSync{}
+// NewConfigSession is a helper function to simplify the provider implementation.
+func NewConfigSession() resource.Resource {
+	return &configSession{}
 }
 
-// globalSync is the resource implementation.
-type globalSync struct {
+// configSession is the resource implementation.
+type configSession struct {
 	client *opswatClient.Client
 }
 
 // Metadata returns the resource type name.
-func (r *globalSync) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_file_sync"
+func (r *configSession) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_config_session"
 }
 
 // Schema defines the schema for the resource.
-func (r *globalSync) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *configSession) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
@@ -43,7 +43,7 @@ func (r *globalSync) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 	}
 }
 
-func (r *globalSync) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *configSession) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -63,7 +63,7 @@ func (r *globalSync) Configure(_ context.Context, req resource.ConfigureRequest,
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan timeoutModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -79,7 +79,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	_, err := r.client.CreateGlobalSync(int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync Order",
+			"Error Updating OPSWAT Global sync timeout",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
@@ -105,7 +105,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 }
 
 // Read resource information.
-func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
 	var state timeoutModel
 	diags := req.State.Get(ctx, &state)
@@ -135,7 +135,7 @@ func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *r
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan timeoutModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -177,5 +177,5 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *globalSync) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *configSession) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 }
