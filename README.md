@@ -39,7 +39,15 @@ $ go install .
 
 Using the provider
 ----------------------
-tbd
+```hcl
+terraform {
+  required_providers {
+    opswat = {
+      source = "gerbil/opswat"
+    }
+  }
+}
+```
 
 
 ## Developing the Provider

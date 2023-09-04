@@ -5,21 +5,21 @@ type globalSyncTimeout struct {
 	Timeout int `json:"timeout"`
 }
 
-// ConfigSession API /admin/config/session
-type ConfigSession struct {
+// Session API /admin/config/session
+type Session struct {
 	AbsoluteSessionTimeout int  `json:"absoluteSessionTimeout"`
 	AllowCrossIpSessions   bool `json:"allowCrossIpSessions"`
 	AllowDuplicateSession  bool `json:"allowDuplicateSession"`
 	SessionTimeout         int  `json:"sessionTimeout"`
 }
 
-// ConfigQuarantine API /admin/config/quarantine
-type ConfigQuarantine struct {
+// Quarantine API /admin/config/quarantine
+type Quarantine struct {
 	Cleanuprange int `json:"cleanuprange"`
 }
 
 // ConfigUpdates API /admin/config/update
-type ConfigUpdates struct {
+type Updates struct {
 	Autoupdateperiod     int           `json:"autoupdateperiod"`
 	Deleteafterimport    bool          `json:"deleteafterimport"`
 	Disabledupdate       []interface{} `json:"disabledupdate"`
@@ -52,7 +52,7 @@ type scanQueue struct {
 }
 
 // API /admin/config/rule
-type ConfigWorkflow struct {
+type Workflows struct {
 	AllowCert                                   bool          `json:"allow_cert"`
 	AllowCertCert                               string        `json:"allow_cert.cert"`
 	AllowCertCertValidity                       int           `json:"allow_cert.cert_validity"`

@@ -11,27 +11,27 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &configSession{}
-	_ resource.ResourceWithConfigure = &configSession{}
+	_ resource.Resource              = &Session{}
+	_ resource.ResourceWithConfigure = &Session{}
 )
 
-// NewConfigSession is a helper function to simplify the provider implementation.
-func NewConfigSession() resource.Resource {
-	return &configSession{}
+// NewSession is a helper function to simplify the provider implementation.
+func NewSession() resource.Resource {
+	return &Session{}
 }
 
-// configSession is the resource implementation.
-type configSession struct {
+// Session is the resource implementation.
+type Session struct {
 	client *opswatClient.Client
 }
 
 // Metadata returns the resource type name.
-func (r *configSession) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *Session) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_config_session"
 }
 
 // Schema defines the schema for the resource.
-func (r *configSession) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Session) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
@@ -56,14 +56,14 @@ func (r *configSession) Schema(_ context.Context, _ resource.SchemaRequest, resp
 }
 
 // timeouts maps timeout schema data.
-type configSessionModel struct {
+type SessionModel struct {
 	AbsoluteSessionTimeout types.Int64 `tfsdk:"absolutesessiontimeout"`
 	AllowCrossIpSessions   types.Bool  `tfsdk:"allowcrossipsessions"`
 	AllowDuplicateSession  types.Bool  `tfsdk:"allowduplicatesession"`
 	SessionTimeout         types.Int64 `tfsdk:"sessiontimeout"`
 }
 
-func (r *configSession) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *Session) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -83,16 +83,16 @@ func (r *configSession) Configure(_ context.Context, req resource.ConfigureReque
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *Session) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan configSessionModel
+	var plan SessionModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	json := opswatClient.ConfigSession{
+	json := opswatClient.Session{
 		AbsoluteSessionTimeout: int(plan.AbsoluteSessionTimeout.ValueInt64()),
 		AllowCrossIpSessions:   bool(plan.AllowCrossIpSessions.ValueBool()),
 		AllowDuplicateSession:  bool(plan.AllowDuplicateSession.ValueBool()),
@@ -100,7 +100,7 @@ func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	// Update existing order
-	_, err := r.client.CreateConfigSession(json)
+	_, err := r.client.CreateSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -110,7 +110,7 @@ func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetConfigSession()
+	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -132,9 +132,9 @@ func (r *configSession) Create(ctx context.Context, req resource.CreateRequest, 
 }
 
 // Read resource information.
-func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *Session) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state configSessionModel
+	var state SessionModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -142,7 +142,7 @@ func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	// Get refreshed order value from OPSWAT
-	result, err := r.client.GetConfigSession()
+	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -165,16 +165,16 @@ func (r *configSession) Read(ctx context.Context, req resource.ReadRequest, resp
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *Session) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan configSessionModel
+	var plan SessionModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	json := opswatClient.ConfigSession{
+	json := opswatClient.Session{
 		AbsoluteSessionTimeout: int(plan.AbsoluteSessionTimeout.ValueInt64()),
 		AllowCrossIpSessions:   bool(plan.AllowCrossIpSessions.ValueBool()),
 		AllowDuplicateSession:  bool(plan.AllowDuplicateSession.ValueBool()),
@@ -182,7 +182,7 @@ func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	// Update existing order
-	_, err := r.client.UpdateConfigSession(json)
+	_, err := r.client.UpdateSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -192,7 +192,7 @@ func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetConfigSession()
+	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -214,5 +214,5 @@ func (r *configSession) Update(ctx context.Context, req resource.UpdateRequest, 
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *configSession) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *Session) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 }

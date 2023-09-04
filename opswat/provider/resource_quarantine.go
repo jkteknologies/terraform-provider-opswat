@@ -11,27 +11,27 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &configQuarantine{}
-	_ resource.ResourceWithConfigure = &configQuarantine{}
+	_ resource.Resource              = &Quarantine{}
+	_ resource.ResourceWithConfigure = &Quarantine{}
 )
 
-// NewConfigQuarantine is a helper function to simplify the provider implementation.
-func NewConfigQuarantine() resource.Resource {
-	return &configQuarantine{}
+// NewQuarantine is a helper function to simplify the provider implementation.
+func NewQuarantine() resource.Resource {
+	return &Quarantine{}
 }
 
-// configQuarantine is the resource implementation.
-type configQuarantine struct {
+// Quarantine is the resource implementation.
+type Quarantine struct {
 	client *opswatClient.Client
 }
 
 // Metadata returns the resource type name.
-func (r *configQuarantine) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *Quarantine) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_config_quarantine"
 }
 
 // Schema defines the schema for the resource.
-func (r *configQuarantine) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Quarantine) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
@@ -44,11 +44,11 @@ func (r *configQuarantine) Schema(_ context.Context, _ resource.SchemaRequest, r
 }
 
 // timeouts maps timeout schema data.
-type configQuarantineModel struct {
+type QuarantineModel struct {
 	Cleanuprange types.Int64 `tfsdk:"cleanuprange"`
 }
 
-func (r *configQuarantine) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *Quarantine) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,21 +68,21 @@ func (r *configQuarantine) Configure(_ context.Context, req resource.ConfigureRe
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *configQuarantine) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan configQuarantineModel
+	var plan QuarantineModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	json := opswatClient.ConfigQuarantine{
+	json := opswatClient.Quarantine{
 		Cleanuprange: int(plan.Cleanuprange.ValueInt64()),
 	}
 
 	// Update existing order
-	_, err := r.client.CreateConfigQuarantine(json)
+	_, err := r.client.CreateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -92,7 +92,7 @@ func (r *configQuarantine) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetConfigQuarantine()
+	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -111,9 +111,9 @@ func (r *configQuarantine) Create(ctx context.Context, req resource.CreateReques
 }
 
 // Read resource information.
-func (r *configQuarantine) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *Quarantine) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state configQuarantineModel
+	var state QuarantineModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -121,7 +121,7 @@ func (r *configQuarantine) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	// Get refreshed order value from OPSWAT
-	result, err := r.client.GetConfigQuarantine()
+	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -141,21 +141,21 @@ func (r *configQuarantine) Read(ctx context.Context, req resource.ReadRequest, r
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *configQuarantine) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan configQuarantineModel
+	var plan QuarantineModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	json := opswatClient.ConfigQuarantine{
+	json := opswatClient.Quarantine{
 		Cleanuprange: int(plan.Cleanuprange.ValueInt64()),
 	}
 
 	// Update existing order
-	_, err := r.client.UpdateConfigQuarantine(json)
+	_, err := r.client.UpdateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -165,7 +165,7 @@ func (r *configQuarantine) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetConfigQuarantine()
+	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -184,5 +184,5 @@ func (r *configQuarantine) Update(ctx context.Context, req resource.UpdateReques
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *configQuarantine) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *Quarantine) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 }

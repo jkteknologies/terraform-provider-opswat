@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// GetConfigQuarantine - Returns session config
-func (c *Client) GetConfigQuarantine() (*ConfigQuarantine, error) {
+// GetQuarantine - Returns session config
+func (c *Client) GetQuarantine() (*Quarantine, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), nil)
 
 	if err != nil {
@@ -23,7 +23,7 @@ func (c *Client) GetConfigQuarantine() (*ConfigQuarantine, error) {
 		return nil, err
 	}
 
-	result := ConfigQuarantine{}
+	result := Quarantine{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -34,8 +34,8 @@ func (c *Client) GetConfigQuarantine() (*ConfigQuarantine, error) {
 	return &result, nil
 }
 
-// UpdateConfigQuarantine - Updates session config
-func (c *Client) UpdateConfigQuarantine(config ConfigQuarantine) (*ConfigQuarantine, error) {
+// UpdateQuarantine - Updates session config
+func (c *Client) UpdateQuarantine(config Quarantine) (*Quarantine, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *Client) UpdateConfigQuarantine(config ConfigQuarantine) (*ConfigQuarant
 		return nil, err
 	}
 
-	result := ConfigQuarantine{}
+	result := Quarantine{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -64,8 +64,8 @@ func (c *Client) UpdateConfigQuarantine(config ConfigQuarantine) (*ConfigQuarant
 	return &result, nil
 }
 
-// CreateConfigQuarantine - Creates session config
-func (c *Client) CreateConfigQuarantine(config ConfigQuarantine) (*ConfigQuarantine, error) {
+// CreateQuarantine - Creates session config
+func (c *Client) CreateQuarantine(config Quarantine) (*Quarantine, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -83,7 +83,7 @@ func (c *Client) CreateConfigQuarantine(config ConfigQuarantine) (*ConfigQuarant
 		return nil, err
 	}
 
-	result := ConfigQuarantine{}
+	result := Quarantine{}
 
 	err = json.Unmarshal(body, &result)
 

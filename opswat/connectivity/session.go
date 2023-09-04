@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// GetConfigSession - Returns session config
-func (c *Client) GetConfigSession() (*ConfigSession, error) {
+// GetSession - Returns session config
+func (c *Client) GetSession() (*Session, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/session", c.HostURL), nil)
 
 	if err != nil {
@@ -23,7 +23,7 @@ func (c *Client) GetConfigSession() (*ConfigSession, error) {
 		return nil, err
 	}
 
-	result := ConfigSession{}
+	result := Session{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -34,8 +34,8 @@ func (c *Client) GetConfigSession() (*ConfigSession, error) {
 	return &result, nil
 }
 
-// UpdateConfigSession - Updates session config
-func (c *Client) UpdateConfigSession(config ConfigSession) (*ConfigSession, error) {
+// UpdateSession - Updates session config
+func (c *Client) UpdateSession(config Session) (*Session, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *Client) UpdateConfigSession(config ConfigSession) (*ConfigSession, erro
 		return nil, err
 	}
 
-	result := ConfigSession{}
+	result := Session{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -64,8 +64,8 @@ func (c *Client) UpdateConfigSession(config ConfigSession) (*ConfigSession, erro
 	return &result, nil
 }
 
-// CreateConfigSession - Creates session config
-func (c *Client) CreateConfigSession(config ConfigSession) (*ConfigSession, error) {
+// CreateSession - Creates session config
+func (c *Client) CreateSession(config Session) (*Session, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -83,7 +83,7 @@ func (c *Client) CreateConfigSession(config ConfigSession) (*ConfigSession, erro
 		return nil, err
 	}
 
-	result := ConfigSession{}
+	result := Session{}
 
 	err = json.Unmarshal(body, &result)
 

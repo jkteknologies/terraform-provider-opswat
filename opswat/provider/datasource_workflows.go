@@ -11,39 +11,39 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &globalConfigWorkflow{}
-	_ datasource.DataSourceWithConfigure = &globalConfigWorkflow{}
+	_ datasource.DataSource              = &Workflows{}
+	_ datasource.DataSourceWithConfigure = &Workflows{}
 )
 
-// NewGlobalConfigWorkflow is a helper function to simplify the provider implementation.
-func NewGlobalConfigWorkflow() datasource.DataSource {
-	return &globalConfigWorkflow{}
+// NewGlobalWorkflows is a helper function to simplify the provider implementation.
+func NewWorkflows() datasource.DataSource {
+	return &Workflows{}
 }
 
-// globalConfigWorkflow is the data source implementation.
-type globalConfigWorkflow struct {
+// Workflows is the data source implementation.
+type Workflows struct {
 	client *opswatClient.Client
 }
 
 // Metadata returns the data source type name.
-func (d *globalConfigWorkflow) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *Workflows) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_config_workflow"
 }
 
 // Schema defines the schema for the data source.
-func (d *globalConfigWorkflow) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Global workflows datasource.",
 		Attributes: map[string]schema.Attribute{
-			"AllowCert": schema.BoolAttribute{
-				Description: "Global file sync can timeout.",
-				Required:    true,
+			"allow_cert": schema.BoolAttribute{
+				Description: "Generate batch signature with certificate flag.",
+				Required:    false,
 			},
 		},
 	}
 }
 
-func (d *globalConfigWorkflow) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *Workflows) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -63,17 +63,17 @@ func (d *globalConfigWorkflow) Configure(_ context.Context, req datasource.Confi
 
 // timeouts maps timeout schema data.
 type configWorkflow struct {
-	Timeout types.Int64 `tfsdk:"timeout"`
+	AllowCert types.Bool `tfsdk:"allow_cert"`
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (d *globalConfigWorkflow) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state timeoutModel
+func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state configWorkflow
 
-	result, err := d.client.GetGlobalSync()
+	result, err := d.client.GetWorkflows()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read OPSWAT Global sync timeout",
+			"Unable to Read OPSWAT workflow",
 			err.Error(),
 		)
 		return
@@ -81,7 +81,7 @@ func (d *globalConfigWorkflow) Read(ctx context.Context, req datasource.ReadRequ
 
 	//fmt.Println(types.Int64Value(int64(result.Timeout)))
 
-	state.Timeout = types.Int64Value(int64(result.Timeout))
+	state.AllowCert = types.BoolValue(result.AllowCert)
 
 	// Set state
 	diags := resp.State.Set(ctx, &state)

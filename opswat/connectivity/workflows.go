@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// GetConfigWorkflow - Returns workflow config
-func (c *Client) GetConfigWorkflow() (*ConfigWorkflow, error) {
+// GetWorkflows - Returns workflows config
+func (c *Client) GetWorkflows() (*Workflows, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/rule", c.HostURL), nil)
 
 	if err != nil {
@@ -24,7 +24,7 @@ func (c *Client) GetConfigWorkflow() (*ConfigWorkflow, error) {
 		return nil, err
 	}
 
-	result := ConfigWorkflow{}
+	result := Workflows{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -35,8 +35,8 @@ func (c *Client) GetConfigWorkflow() (*ConfigWorkflow, error) {
 	return &result, nil
 }
 
-// UpdateConfigWorkflow - Updates workflow config
-func (c *Client) UpdateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, error) {
+// UpdateWorkflow - Updates workflow config
+func (c *Client) UpdateWorkflow(config Workflows) (*Workflows, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *Client) UpdateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, e
 		return nil, err
 	}
 
-	result := ConfigWorkflow{}
+	result := Workflows{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -65,8 +65,8 @@ func (c *Client) UpdateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, e
 	return &result, nil
 }
 
-// CreateConfigWorkflow - Creates workflow config
-func (c *Client) CreateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, error) {
+// CreateWorkflow - Creates workflow config
+func (c *Client) CreateWorkflow(config Workflows) (*Workflows, error) {
 
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
@@ -84,7 +84,7 @@ func (c *Client) CreateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, e
 		return nil, err
 	}
 
-	result := ConfigWorkflow{}
+	result := Workflows{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -95,8 +95,8 @@ func (c *Client) CreateConfigWorkflow(config ConfigWorkflow) (*ConfigWorkflow, e
 	return &result, nil
 }
 
-// DeleteConfigWorkflow - Delete workflow config
-func (c *Client) DeleteConfigWorkflow(configWorkflowID string) error {
+// DeleteWorkflow - Delete workflow config
+func (c *Client) DeleteWorkflow(configWorkflowID string) error {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/admin/config/rule/%s", c.HostURL, configWorkflowID), nil)
 	if err != nil {
