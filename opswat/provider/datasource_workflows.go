@@ -27,7 +27,7 @@ type Workflows struct {
 
 // Metadata returns the data source type name.
 func (d *Workflows) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_config_workflow"
+	resp.TypeName = req.ProviderTypeName + "_workflows"
 }
 
 // Schema defines the schema for the data source.
@@ -37,7 +37,7 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 		Attributes: map[string]schema.Attribute{
 			"allow_cert": schema.BoolAttribute{
 				Description: "Generate batch signature with certificate flag.",
-				Required:    false,
+				Computed:    true,
 			},
 		},
 	}

@@ -27,7 +27,7 @@ type Session struct {
 
 // Metadata returns the resource type name.
 func (r *Session) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_config_session"
+	resp.TypeName = req.ProviderTypeName + "_session"
 }
 
 // Schema defines the schema for the resource.
