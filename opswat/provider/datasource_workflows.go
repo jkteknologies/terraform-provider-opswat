@@ -158,8 +158,8 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 	//fmt.Println("WORKFLOWS")
 	//fmt.Printf("Workflows : %+v", result)
 
-	//fmt.Println("RESULT")
-	//spew.Dump(result)
+	fmt.Println("RESULT")
+	fmt.Printf("Workflows : %+v", result)
 
 	for _, workflow := range result {
 		workflowState := workflowModel{
@@ -169,7 +169,7 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			AllowLocalFiles:          types.BoolValue(workflow.AllowLocalFiles),
 			AllowLocalFilesWhiteList: types.BoolValue(workflow.AllowLocalFilesWhiteList),
 			//AllowLocalFilesLocalPaths: types.ListValueFrom(ctx, types.StringType, workflow.AllowLocalFilesLocalPaths),
-			AllowLocalFilesLocalPaths: workflow.AllowLocalFilesLocalPaths.Elements(),
+			//AllowLocalFilesLocalPaths: workflow.AllowLocalFilesLocalPaths.Elements(),
 		}
 
 		//fmt.Println("PARSED WORKFLOWS")
