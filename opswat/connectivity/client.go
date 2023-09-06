@@ -20,7 +20,7 @@ type Client struct {
 // NewClient -
 func NewClient(host, apikey *string) (*Client, error) {
 	c := Client{
-		HTTPClient: &http.Client{Timeout: 10 * time.Second},
+		HTTPClient: &http.Client{Timeout: 100 * time.Second},
 		// Default OPSWAT URL
 		HostURL: "https://" + HostURL,
 	}

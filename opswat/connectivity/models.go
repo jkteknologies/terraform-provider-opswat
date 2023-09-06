@@ -29,7 +29,7 @@ type Updates struct {
 }
 
 // API /admin/license
-type license struct {
+type License struct {
 	ActivationKey   string `json:"activation_key"`
 	DaysLeft        int    `json:"days_left"`
 	Deployment      string `json:"deployment"`
@@ -52,20 +52,20 @@ type scanQueue struct {
 }
 
 // API /admin/config/rule
-type Workflows struct {
-	AllowCert                                   bool          `json:"allow_cert"`
-	AllowCertCert                               string        `json:"allow_cert.cert"`
-	AllowCertCertValidity                       int           `json:"allow_cert.cert_validity"`
-	AllowLocalFiles                             bool          `json:"allow_local_files"`
-	AllowLocalFilesLocalFilesWhiteList          bool          `json:"allow_local_files.local_files_white_list"`
-	AllowLocalFilesLocalPaths                   []interface{} `json:"allow_local_files.local_paths"`
-	Description                                 string        `json:"description"`
-	Id                                          int           `json:"id"`
-	IncludeWebhookSignature                     bool          `json:"include_webhook_signature"`
-	IncludeWebhookSignatureWebhookCertificateId int           `json:"include_webhook_signature.webhook_certificate_id"`
-	LastModified                                int64         `json:"last_modified"`
-	Mutable                                     bool          `json:"mutable"`
-	Name                                        string        `json:"name"`
+type Workflow struct {
+	AllowCert                                   bool     `json:"allow_cert"`
+	AllowCertCert                               string   `json:"allow_cert.cert"`
+	AllowCertCertValidity                       int      `json:"allow_cert.cert_validity"`
+	AllowLocalFiles                             bool     `json:"allow_local_files"`
+	AllowLocalFilesWhiteList                    bool     `json:"allow_local_files.local_files_white_list"`
+	AllowLocalFilesLocalPaths                   []string `json:"allow_local_files.local_paths"`
+	Description                                 string   `json:"description"`
+	Id                                          int      `json:"id"`
+	IncludeWebhookSignature                     bool     `json:"include_webhook_signature"`
+	IncludeWebhookSignatureWebhookCertificateId int      `json:"include_webhook_signature.webhook_certificate_id"`
+	LastModified                                int64    `json:"last_modified"`
+	Mutable                                     bool     `json:"mutable"`
+	Name                                        string   `json:"name"`
 	OptionValues                                struct {
 	} `json:"option_values"`
 	PrefHashes struct {

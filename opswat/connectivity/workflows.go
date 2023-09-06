@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 // GetWorkflows - Returns workflows config
-func (c *Client) GetWorkflows() (*Workflows, error) {
+func (c *Client) GetWorkflows() ([]Workflow, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/rule", c.HostURL), nil)
 
 	if err != nil {
@@ -24,7 +23,7 @@ func (c *Client) GetWorkflows() (*Workflows, error) {
 		return nil, err
 	}
 
-	result := Workflows{}
+	result := []Workflow{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -32,67 +31,10 @@ func (c *Client) GetWorkflows() (*Workflows, error) {
 		return nil, err
 	}
 
-	return &result, nil
-}
+	//fmt.Println("UNMARSHAL RESULT")
+	//fmt.Printf("Workflows : %+v", result)
 
-// UpdateWorkflow - Updates workflow config
-func (c *Client) UpdateWorkflow(config Workflows) (*Workflows, error) {
-
-	preparedJson, err := json.Marshal(config)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/rule", c.HostURL), strings.NewReader(string(preparedJson)))
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.doRequest(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := Workflows{}
-
-	err = json.Unmarshal(body, &result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// CreateWorkflow - Creates workflow config
-func (c *Client) CreateWorkflow(config Workflows) (*Workflows, error) {
-
-	preparedJson, err := json.Marshal(config)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/admin/config/rule", c.HostURL), strings.NewReader(string(preparedJson)))
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.doRequest(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := Workflows{}
-
-	err = json.Unmarshal(body, &result)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return result, nil
 }
 
 // DeleteWorkflow - Delete workflow config
