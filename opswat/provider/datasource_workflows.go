@@ -126,10 +126,30 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 								},
 							},
 						},
-						//scan_allowed
-						//result_allowed
-
-						//option_values
+						"option_values": schema.ObjectAttribute{
+							AttributeTypes: map[string]attr.Type{
+								"archive_handling_max_number_files":           types.Int64Type,
+								"archive_handling_max_recursion_level":        types.Int64Type,
+								"archive_handling_max_size_files":             types.Int64Type,
+								"archive_handling_timeout":                    types.Int64Type,
+								"filetype_analysis_timeout":                   types.Int64Type,
+								"process_info_global_timeout":                 types.BoolType,
+								"process_info_global_timeout_value":           types.Int64Type,
+								"process_info_max_download_size":              types.Int64Type,
+								"process_info_max_file_size":                  types.Int64Type,
+								"process_info_quarantine":                     types.BoolType,
+								"process_info_skip_hash":                      types.BoolType,
+								"process_info_skip_processing_fast_symlink":   types.BoolType,
+								"process_info_workflow_priority":              types.Int64Type,
+								"scan_filescan_check_av_engine":               types.BoolType,
+								"scan_filescan_download_timeout":              types.Int64Type,
+								"scan_filescan_global_scan_timeout":           types.Int64Type,
+								"scan_filescan_per_engine_scan_timeout":       types.Int64Type,
+								"vul_filescan_timeout_vulnerability_scanning": types.Int64Type,
+							},
+							Description: "Options",
+							Computed:    true,
+						},
 						//user_agents
 					},
 				},
@@ -179,6 +199,7 @@ type workflowModel struct {
 	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
 	PrefHashes                           PrefHashesModel      `tfsdk:"pref_hashes"`
 	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
+	OptionValues                         OptionValues         `tfsdk:"option_values"`
 }
 
 // PrefHashesModel
@@ -190,6 +211,28 @@ type PrefHashesModel struct {
 type ResultAllowedModel struct {
 	Role       types.Int64 `tfsdk:"role"`
 	Visibility types.Int64 `tfsdk:"visibility"`
+}
+
+// OptionValues
+type OptionValues struct {
+	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
+	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
+	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_archive_handling_max_size_files"`
+	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_archive_handling_timeout"`
+	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
+	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
+	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
+	ProcessInfoMaxDownloadSize              types.Int64 `tfsdk:"process_info_max_download_size"`
+	ProcessInfoMaxFileSize                  types.Int64 `tfsdk:"process_info_max_file_size"`
+	ProcessInfoQuarantine                   types.Bool  `tfsdk:"process_info_quarantine"`
+	ProcessInfoSkipHash                     types.Bool  `tfsdk:"process_info_skip_hash"`
+	ProcessInfoSkipProcessingFastSymlink    types.Bool  `tfsdk:"process_info_skip_processing_fast_symlink"`
+	ProcessInfoWorkflowPriority             types.Int64 `tfsdk:"process_info_workflow_priority"`
+	ScanFilescanCheckAvEngine               types.Bool  `tfsdk:"scan_filescan_check_av_engine"`
+	ScanFilescanDownloadTimeout             types.Int64 `tfsdk:"scan_filescan_download_timeout"`
+	ScanFilescanGlobalScanTimeout           types.Int64 `tfsdk:"scan_filescan_global_scan_timeout"`
+	ScanFilescanPerEngineScanTimeout        types.Int64 `tfsdk:"scan_filescan_per_engine_scan_timeout"`
+	VulFilescanTimeoutVulnerabilityScanning types.Int64 `tfsdk:"vul_filescan_timeout_vulnerability_scanning"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -230,6 +273,26 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 			ScanAllowed:                          append(workflow.ScanAllowed),
 			PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
+			OptionValues: OptionValues{
+				ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
+				ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxRecursionLevel)),
+				ArchiveHandlingMaxSizeFiles:             types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxSizeFiles)),
+				ArchiveHandlingTimeout:                  types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingTimeout)),
+				FiletypeAnalysisTimeout:                 types.Int64Value(int64(workflow.OptionValues.FiletypeAnalysisTimeout)),
+				ProcessInfoGlobalTimeout:                types.BoolValue(workflow.OptionValues.ProcessInfoGlobalTimeout),
+				ProcessInfoGlobalTimeoutValue:           types.Int64Value(int64(workflow.OptionValues.ProcessInfoGlobalTimeoutValue)),
+				ProcessInfoMaxDownloadSize:              types.Int64Value(int64(workflow.OptionValues.ProcessInfoMaxDownloadSize)),
+				ProcessInfoMaxFileSize:                  types.Int64Value(int64(workflow.OptionValues.ProcessInfoMaxFileSize)),
+				ProcessInfoQuarantine:                   types.BoolValue(workflow.OptionValues.ProcessInfoQuarantine),
+				ProcessInfoSkipHash:                     types.BoolValue(workflow.OptionValues.ProcessInfoSkipHash),
+				ProcessInfoSkipProcessingFastSymlink:    types.BoolValue(workflow.OptionValues.ProcessInfoSkipProcessingFastSymlink),
+				ProcessInfoWorkflowPriority:             types.Int64Value(int64(workflow.OptionValues.ProcessInfoWorkflowPriority)),
+				ScanFilescanCheckAvEngine:               types.BoolValue(workflow.OptionValues.ScanFilescanCheckAvEngine),
+				ScanFilescanDownloadTimeout:             types.Int64Value(int64(workflow.OptionValues.ScanFilescanDownloadTimeout)),
+				ScanFilescanGlobalScanTimeout:           types.Int64Value(int64(workflow.OptionValues.ScanFilescanGlobalScanTimeout)),
+				ScanFilescanPerEngineScanTimeout:        types.Int64Value(int64(workflow.OptionValues.ScanFilescanPerEngineScanTimeout)),
+				VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(workflow.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
+			},
 		}
 
 		//fmt.Println("PARSED WORKFLOWS") test

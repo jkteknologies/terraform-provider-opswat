@@ -71,6 +71,28 @@ type Workflow struct {
 	ZoneId                                      int             `json:"zone_id"`
 	PrefHashes                                  PrefHash        `json:"pref_hashes"`
 	ResultAllowed                               []ResultAllowed `json:"result_allowed"`
+	OptionValues                                OptionValues    `json:"option_values"`
+}
+
+type OptionValues struct {
+	ArchiveHandlingMaxNumberFiles           int  `json:"archive.archive_handling.max_number_files"`
+	ArchiveHandlingMaxRecursionLevel        int  `json:"archive.archive_handling.max_recursion_level"`
+	ArchiveHandlingMaxSizeFiles             int  `json:"archive.archive_handling.max_size_files"`
+	ArchiveHandlingTimeout                  int  `json:"archive.archive_handling.timeout"`
+	FiletypeAnalysisTimeout                 int  `json:"filetype_analysis.timeout"`
+	ProcessInfoGlobalTimeout                bool `json:"process_info.global_timeout"`
+	ProcessInfoGlobalTimeoutValue           int  `json:"process_info.global_timeout.value"`
+	ProcessInfoMaxDownloadSize              int  `json:"process_info.max_download_size"`
+	ProcessInfoMaxFileSize                  int  `json:"process_info.max_file_size"`
+	ProcessInfoQuarantine                   bool `json:"process_info.quarantine"`
+	ProcessInfoSkipHash                     bool `json:"process_info.skip_hash"`
+	ProcessInfoSkipProcessingFastSymlink    bool `json:"process_info.skip_processing_fast_symlink"`
+	ProcessInfoWorkflowPriority             int  `json:"process_info.workflow_priority"`
+	ScanFilescanCheckAvEngine               bool `json:"scan.filescan.check_av_engine"`
+	ScanFilescanDownloadTimeout             int  `json:"scan.filescan.download_timeout"`
+	ScanFilescanGlobalScanTimeout           int  `json:"scan.filescan.global_scan_timeout"`
+	ScanFilescanPerEngineScanTimeout        int  `json:"scan.filescan.per_engine_scan_timeout"`
+	VulFilescanTimeoutVulnerabilityScanning int  `json:"vul.filescan.timeout_vulnerability_scanning"`
 }
 
 // PrefHashes
