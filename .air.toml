@@ -10,13 +10,13 @@ tmp_dir = "tmp"
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "examples", "website", ".github"]
   exclude_file = []
   exclude_regex = ["_test.go"]
-  exclude_unchanged = false
+  exclude_unchanged = true
   follow_symlink = false
   full_bin = ""
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   include_file = []
-  kill_delay = "0s"
+  kill_delay = "5s"
   log = "build-errors.log"
   poll = false
   poll_interval = 10000
@@ -33,12 +33,12 @@ tmp_dir = "tmp"
   watcher = "cyan"
 
 [log]
-  main_only = false
-  time = false
+  main_only = true
+  time = true
 
 [misc]
-  clean_on_exit = false
+  clean_on_exit = true
 
 [screen]
-  clear_on_rebuild = false
+  clear_on_rebuild = true
   keep_scroll = true

@@ -3,6 +3,7 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -64,44 +65,67 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Paths.",
 							Computed:    true,
 						},
-						//"description": schema.StringAttribute{
-						//	Description: "Workflow description.",
-						//	Computed:    true,
-						//},
-						//"id": schema.Int64Attribute{
-						//	Description: "Workflow id.",
-						//	Computed:    true,
-						//},
-						//"include_webhook_signature": schema.BoolAttribute{
-						//	Description: "Webhook - Include webhook signature flag.",
-						//	Computed:    true,
-						//},
-						//"include_webhook_signature_certificate_id": schema.Int64Attribute{
-						//	Description: "Webhook - Certificate id.",
-						//	Computed:    true,
-						//},
-						//"last_modified": schema.Int64Attribute{
-						//	Description: "Last modified timestamp (unix epoch).",
-						//	Computed:    true,
-						//},
-						//"mutable": schema.BoolAttribute{
-						//	Description: "mutable flag?.",
-						//	Computed:    true,
-						//},
-						//"name": schema.StringAttribute{
-						//	Description: "Workflow name.",
-						//	Computed:    true,
-						//},
-						//"workflow_id": schema.StringAttribute{
-						//	Description: "Workflow id.",
-						//	Computed:    true,
-						//},
-						//"zone_id": schema.StringAttribute{
-						//	Description: "Workflow network zone id.",
-						//	Computed:    true,
+						"description": schema.StringAttribute{
+							Description: "Workflow description.",
+							Computed:    true,
+						},
+						"id": schema.Int64Attribute{
+							Description: "Workflow id.",
+							Computed:    true,
+						},
+						"include_webhook_signature": schema.BoolAttribute{
+							Description: "Webhook - Include webhook signature flag.",
+							Computed:    true,
+						},
+						"include_webhook_signature_certificate_id": schema.Int64Attribute{
+							Description: "Webhook - Certificate id.",
+							Computed:    true,
+						},
+						"last_modified": schema.Int64Attribute{
+							Description: "Last modified timestamp (unix epoch).",
+							Computed:    true,
+						},
+						"mutable": schema.BoolAttribute{
+							Description: "Mutable flag.",
+							Computed:    true,
+						},
+						"name": schema.StringAttribute{
+							Description: "Workflow name.",
+							Computed:    true,
+						},
+						"workflow_id": schema.Int64Attribute{
+							Description: "Workflow id.",
+							Computed:    true,
+						},
+						"zone_id": schema.Int64Attribute{
+							Description: "Workflow network zone id.",
+							Computed:    true,
+						},
+						"scan_allowed": schema.ListAttribute{
+							ElementType: types.Int64Type,
+							Description: "Restrictions - Restrict access to following roles",
+							Computed:    true,
+						},
+						"pref_hashes": schema.ObjectAttribute{
+							AttributeTypes: map[string]attr.Type{
+								"ds_advanced_setting_hash": types.StringType,
+							},
+							Description: "Pref hashes",
+							Computed:    true,
+						},
+						//"result_allowed": schema.ListNestedAttribute{
+						//	Computed: true,
+						//	NestedObject: schema.NestedAttributeObject{
+						//		Attributes: map[string]schema.Attribute{
+						//			"ds_advanced_setting_hash": schema.Int64Attribute{
+						//				Computed: true,
+						//			},
+						//		},
+						//	},
 						//},
 						//scan_allowed
 						//result_allowed
+
 						//option_values
 						//user_agents
 					},
@@ -134,12 +158,28 @@ type workflowsDataSourceModel struct {
 }
 
 type workflowModel struct {
-	AllowCert                types.Bool   `tfsdk:"allow_cert"`
-	AllowCertCert            types.String `tfsdk:"allow_cert_cert"`
-	AllowCertCertValidity    types.Int64  `tfsdk:"allow_cert_cert_validity"`
-	AllowLocalFiles          types.Bool   `tfsdk:"allow_local_files"`
-	AllowLocalFilesWhiteList types.Bool   `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPath types.List   `tfsdk:"allow_local_files_local_paths"`
+	AllowCert                            types.Bool      `tfsdk:"allow_cert"`
+	AllowCertCert                        types.String    `tfsdk:"allow_cert_cert"`
+	AllowCertCertValidity                types.Int64     `tfsdk:"allow_cert_cert_validity"`
+	AllowLocalFiles                      types.Bool      `tfsdk:"allow_local_files"`
+	AllowLocalFilesWhiteList             types.Bool      `tfsdk:"allow_local_files_white_list"`
+	AllowLocalFilesLocalPaths            []string        `tfsdk:"allow_local_files_local_paths"`
+	Description                          types.String    `tfsdk:"description"`
+	ID                                   types.Int64     `tfsdk:"id"`
+	IncludeWebhookSignature              types.Bool      `tfsdk:"include_webhook_signature"`
+	IncludeWebhookSignatureCertificateID types.Int64     `tfsdk:"include_webhook_signature_certificate_id"`
+	LastModified                         types.Int64     `tfsdk:"last_modified"`
+	Mutable                              types.Bool      `tfsdk:"mutable"`
+	Name                                 types.String    `tfsdk:"name"`
+	WorkflowID                           types.Int64     `tfsdk:"workflow_id"`
+	ZoneID                               types.Int64     `tfsdk:"zone_id"`
+	ScanAllowed                          []interface{}   `tfsdk:"scan_allowed"`
+	PrefHashes                           PrefHashesModel `tfsdk:"pref_hashes"`
+}
+
+// PrefHashesModel
+type PrefHashesModel struct {
+	DSAdvancedSettingHash types.String `tfsdk:"ds_advanced_setting_hash"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -163,25 +203,31 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 
 	for _, workflow := range result {
 		workflowState := workflowModel{
-			AllowCert:                types.BoolValue(workflow.AllowCert),
-			AllowCertCert:            types.StringValue(workflow.AllowCertCert),
-			AllowCertCertValidity:    types.Int64Value(int64(workflow.AllowCertCertValidity)),
-			AllowLocalFiles:          types.BoolValue(workflow.AllowLocalFiles),
-			AllowLocalFilesWhiteList: types.BoolValue(workflow.AllowLocalFilesWhiteList),
-			//AllowLocalFilesLocalPath: types.ListValue(),
+			AllowCert:                            types.BoolValue(workflow.AllowCert),
+			AllowCertCert:                        types.StringValue(workflow.AllowCertCert),
+			AllowCertCertValidity:                types.Int64Value(int64(workflow.AllowCertCertValidity)),
+			AllowLocalFiles:                      types.BoolValue(workflow.AllowLocalFiles),
+			AllowLocalFilesWhiteList:             types.BoolValue(workflow.AllowLocalFilesWhiteList),
+			AllowLocalFilesLocalPaths:            append(workflow.AllowLocalFilesLocalPaths),
+			Description:                          types.StringValue(workflow.Description),
+			ID:                                   types.Int64Value(int64(workflow.Id)),
+			IncludeWebhookSignature:              types.BoolValue(workflow.IncludeWebhookSignature),
+			IncludeWebhookSignatureCertificateID: types.Int64Value(int64(workflow.IncludeWebhookSignatureWebhookCertificateId)),
+			LastModified:                         types.Int64Value(int64(workflow.LastModified)),
+			Mutable:                              types.BoolValue(workflow.Mutable),
+			Name:                                 types.StringValue(workflow.Name),
+			WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),
+			ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
+			ScanAllowed:                          append(workflow.ScanAllowed),
+			PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		}
 
-		for _, items := range workflow.AllowLocalFilesLocalPaths {
-			fmt.Printf("Items : %+v", items)
-
-			path := []items
-			state.Workflows = append(state.Workflows, workflowModel{
-				AllowLocalFilesLocalPath: path,
-			})
-		}
-
-		//fmt.Println("PARSED WORKFLOWS")
+		//fmt.Println("PARSED WORKFLOWS") test
 		//spew.Dump(workflowState)
+
+		//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{
+		//	DSAdvancedSettingHash: types.Int64Value(int64(prefhashes.DSAdvancedSettingHash)),
+		//})
 
 		state.Workflows = append(state.Workflows, workflowState)
 

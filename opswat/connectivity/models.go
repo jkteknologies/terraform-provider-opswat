@@ -53,30 +53,26 @@ type scanQueue struct {
 
 // API /admin/config/rule
 type Workflow struct {
-	AllowCert                                   bool     `json:"allow_cert"`
-	AllowCertCert                               string   `json:"allow_cert.cert"`
-	AllowCertCertValidity                       int      `json:"allow_cert.cert_validity"`
-	AllowLocalFiles                             bool     `json:"allow_local_files"`
-	AllowLocalFilesWhiteList                    bool     `json:"allow_local_files.local_files_white_list"`
-	AllowLocalFilesLocalPaths                   []string `json:"allow_local_files.local_paths"`
-	Description                                 string   `json:"description"`
-	Id                                          int      `json:"id"`
-	IncludeWebhookSignature                     bool     `json:"include_webhook_signature"`
-	IncludeWebhookSignatureWebhookCertificateId int      `json:"include_webhook_signature.webhook_certificate_id"`
-	LastModified                                int64    `json:"last_modified"`
-	Mutable                                     bool     `json:"mutable"`
-	Name                                        string   `json:"name"`
-	OptionValues                                struct {
-	} `json:"option_values"`
-	PrefHashes struct {
-		DSADVANCEDSETTINGHASH string `json:"DS_ADVANCED_SETTING_HASH"`
-	} `json:"pref_hashes"`
-	ResultAllowed []struct {
-		Role       interface{} `json:"role"`
-		Visibility int         `json:"visibility"`
-	} `json:"result_allowed"`
-	ScanAllowed []interface{} `json:"scan_allowed"`
-	UserAgents  []string      `json:"user_agents"`
-	WorkflowId  int           `json:"workflow_id"`
-	ZoneId      int           `json:"zone_id"`
+	AllowCert                                   bool          `json:"allow_cert"`
+	AllowCertCert                               string        `json:"allow_cert.cert"`
+	AllowCertCertValidity                       int           `json:"allow_cert.cert_validity"`
+	AllowLocalFiles                             bool          `json:"allow_local_files"`
+	AllowLocalFilesWhiteList                    bool          `json:"allow_local_files.local_files_white_list"`
+	AllowLocalFilesLocalPaths                   []string      `json:"allow_local_files.local_paths"`
+	Description                                 string        `json:"description"`
+	Id                                          int           `json:"id"`
+	IncludeWebhookSignature                     bool          `json:"include_webhook_signature"`
+	IncludeWebhookSignatureWebhookCertificateId int           `json:"include_webhook_signature.webhook_certificate_id"`
+	LastModified                                int64         `json:"last_modified"`
+	Mutable                                     bool          `json:"mutable"`
+	Name                                        string        `json:"name"`
+	ScanAllowed                                 []interface{} `json:"scan_allowed"`
+	WorkflowId                                  int           `json:"workflow_id"`
+	ZoneId                                      int           `json:"zone_id"`
+	PrefHashes                                  PrefHash      `json:"pref_hashes"`
+}
+
+// PrefHashes
+type PrefHash struct {
+	DSADVANCEDSETTINGHASH string `json:"DS_ADVANCED_SETTING_HASH"`
 }
