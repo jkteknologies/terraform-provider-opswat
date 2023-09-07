@@ -113,16 +113,19 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Pref hashes",
 							Computed:    true,
 						},
-						//"result_allowed": schema.ListNestedAttribute{
-						//	Computed: true,
-						//	NestedObject: schema.NestedAttributeObject{
-						//		Attributes: map[string]schema.Attribute{
-						//			"ds_advanced_setting_hash": schema.Int64Attribute{
-						//				Computed: true,
-						//			},
-						//		},
-						//	},
-						//},
+						"result_allowed": schema.ListNestedAttribute{
+							Computed: true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"role": schema.Int64Attribute{
+										Computed: true,
+									},
+									"visibility": schema.Int64Attribute{
+										Computed: true,
+									},
+								},
+							},
+						},
 						//scan_allowed
 						//result_allowed
 
@@ -158,28 +161,35 @@ type workflowsDataSourceModel struct {
 }
 
 type workflowModel struct {
-	AllowCert                            types.Bool      `tfsdk:"allow_cert"`
-	AllowCertCert                        types.String    `tfsdk:"allow_cert_cert"`
-	AllowCertCertValidity                types.Int64     `tfsdk:"allow_cert_cert_validity"`
-	AllowLocalFiles                      types.Bool      `tfsdk:"allow_local_files"`
-	AllowLocalFilesWhiteList             types.Bool      `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPaths            []string        `tfsdk:"allow_local_files_local_paths"`
-	Description                          types.String    `tfsdk:"description"`
-	ID                                   types.Int64     `tfsdk:"id"`
-	IncludeWebhookSignature              types.Bool      `tfsdk:"include_webhook_signature"`
-	IncludeWebhookSignatureCertificateID types.Int64     `tfsdk:"include_webhook_signature_certificate_id"`
-	LastModified                         types.Int64     `tfsdk:"last_modified"`
-	Mutable                              types.Bool      `tfsdk:"mutable"`
-	Name                                 types.String    `tfsdk:"name"`
-	WorkflowID                           types.Int64     `tfsdk:"workflow_id"`
-	ZoneID                               types.Int64     `tfsdk:"zone_id"`
-	ScanAllowed                          []interface{}   `tfsdk:"scan_allowed"`
-	PrefHashes                           PrefHashesModel `tfsdk:"pref_hashes"`
+	AllowCert                            types.Bool           `tfsdk:"allow_cert"`
+	AllowCertCert                        types.String         `tfsdk:"allow_cert_cert"`
+	AllowCertCertValidity                types.Int64          `tfsdk:"allow_cert_cert_validity"`
+	AllowLocalFiles                      types.Bool           `tfsdk:"allow_local_files"`
+	AllowLocalFilesWhiteList             types.Bool           `tfsdk:"allow_local_files_white_list"`
+	AllowLocalFilesLocalPaths            []string             `tfsdk:"allow_local_files_local_paths"`
+	Description                          types.String         `tfsdk:"description"`
+	ID                                   types.Int64          `tfsdk:"id"`
+	IncludeWebhookSignature              types.Bool           `tfsdk:"include_webhook_signature"`
+	IncludeWebhookSignatureCertificateID types.Int64          `tfsdk:"include_webhook_signature_certificate_id"`
+	LastModified                         types.Int64          `tfsdk:"last_modified"`
+	Mutable                              types.Bool           `tfsdk:"mutable"`
+	Name                                 types.String         `tfsdk:"name"`
+	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
+	ZoneID                               types.Int64          `tfsdk:"zone_id"`
+	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
+	PrefHashes                           PrefHashesModel      `tfsdk:"pref_hashes"`
+	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
 }
 
 // PrefHashesModel
 type PrefHashesModel struct {
 	DSAdvancedSettingHash types.String `tfsdk:"ds_advanced_setting_hash"`
+}
+
+// ResultAllowModel
+type ResultAllowedModel struct {
+	Role       types.Int64 `tfsdk:"role"`
+	Visibility types.Int64 `tfsdk:"visibility"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -224,6 +234,13 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 
 		//fmt.Println("PARSED WORKFLOWS") test
 		//spew.Dump(workflowState)
+
+		for _, resultsallowed := range workflow.ResultAllowed {
+			workflowState.ResultAllowed = append(workflowState.ResultAllowed, ResultAllowedModel{
+				Role:       types.Int64Value(int64(resultsallowed.Role)),
+				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
+			})
+		}
 
 		//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{
 		//	DSAdvancedSettingHash: types.Int64Value(int64(prefhashes.DSAdvancedSettingHash)),
