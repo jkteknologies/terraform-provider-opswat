@@ -217,8 +217,8 @@ type ResultAllowedModel struct {
 type OptionValues struct {
 	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
 	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
-	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_archive_handling_max_size_files"`
-	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_archive_handling_timeout"`
+	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
+	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_handling_timeout"`
 	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
 	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
 	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
