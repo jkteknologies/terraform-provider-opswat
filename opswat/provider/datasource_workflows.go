@@ -59,47 +59,46 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Process files from servers flag (false = ALLOW ALL EXCEPT, true = DENY ALL EXCEPT).",
 							Computed:    true,
 						},
-						"allow_local_files_local_paths": schema.ListAttribute{
-							ElementType: types.StringType,
+						"allow_local_files_local_paths": schema.StringAttribute{
 							Description: "Paths.",
 							Computed:    true,
 						},
-						"description": schema.StringAttribute{
-							Description: "Workflow description.",
-							Computed:    true,
-						},
-						"id": schema.Int64Attribute{
-							Description: "Workflow id.",
-							Computed:    true,
-						},
-						"include_webhook_signature": schema.BoolAttribute{
-							Description: "Webhook - Include webhook signature flag.",
-							Computed:    true,
-						},
-						"include_webhook_signature_certificate_id": schema.Int64Attribute{
-							Description: "Webhook - Certificate id.",
-							Computed:    true,
-						},
-						"last_modified": schema.Int64Attribute{
-							Description: "Last modified timestamp (unix epoch).",
-							Computed:    true,
-						},
-						"mutable": schema.BoolAttribute{
-							Description: "mutable flag?.",
-							Computed:    true,
-						},
-						"name": schema.StringAttribute{
-							Description: "Workflow name.",
-							Computed:    true,
-						},
-						"workflow_id": schema.StringAttribute{
-							Description: "Workflow id.",
-							Computed:    true,
-						},
-						"zone_id": schema.StringAttribute{
-							Description: "Workflow network zone id.",
-							Computed:    true,
-						},
+						//"description": schema.StringAttribute{
+						//	Description: "Workflow description.",
+						//	Computed:    true,
+						//},
+						//"id": schema.Int64Attribute{
+						//	Description: "Workflow id.",
+						//	Computed:    true,
+						//},
+						//"include_webhook_signature": schema.BoolAttribute{
+						//	Description: "Webhook - Include webhook signature flag.",
+						//	Computed:    true,
+						//},
+						//"include_webhook_signature_certificate_id": schema.Int64Attribute{
+						//	Description: "Webhook - Certificate id.",
+						//	Computed:    true,
+						//},
+						//"last_modified": schema.Int64Attribute{
+						//	Description: "Last modified timestamp (unix epoch).",
+						//	Computed:    true,
+						//},
+						//"mutable": schema.BoolAttribute{
+						//	Description: "mutable flag?.",
+						//	Computed:    true,
+						//},
+						//"name": schema.StringAttribute{
+						//	Description: "Workflow name.",
+						//	Computed:    true,
+						//},
+						//"workflow_id": schema.StringAttribute{
+						//	Description: "Workflow id.",
+						//	Computed:    true,
+						//},
+						//"zone_id": schema.StringAttribute{
+						//	Description: "Workflow network zone id.",
+						//	Computed:    true,
+						//},
 						//scan_allowed
 						//result_allowed
 						//option_values
@@ -134,12 +133,12 @@ type workflowsDataSourceModel struct {
 }
 
 type workflowModel struct {
-	AllowCert                 types.Bool   `tfsdk:"allow_cert"`
-	AllowCertCert             types.String `tfsdk:"allow_cert_cert"`
-	AllowCertCertValidity     types.Int64  `tfsdk:"allow_cert_cert_validity"`
-	AllowLocalFiles           types.Bool   `tfsdk:"allow_local_files"`
-	AllowLocalFilesWhiteList  types.Bool   `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPaths types.List   `tfsdk:"allow_local_files_local_paths"`
+	AllowCert                types.Bool   `tfsdk:"allow_cert"`
+	AllowCertCert            types.String `tfsdk:"allow_cert_cert"`
+	AllowCertCertValidity    types.Int64  `tfsdk:"allow_cert_cert_validity"`
+	AllowLocalFiles          types.Bool   `tfsdk:"allow_local_files"`
+	AllowLocalFilesWhiteList types.Bool   `tfsdk:"allow_local_files_white_list"`
+	AllowLocalFilesLocalPath types.String `tfsdk:"allow_local_files_local_paths"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -158,8 +157,8 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 	//fmt.Println("WORKFLOWS")
 	//fmt.Printf("Workflows : %+v", result)
 
-	fmt.Println("RESULT")
-	fmt.Printf("Workflows : %+v", result)
+	//fmt.Println("RESULT")
+	//fmt.Printf("Workflows : %+v", result)
 
 	for _, workflow := range result {
 		workflowState := workflowModel{
@@ -168,16 +167,22 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			AllowCertCertValidity:    types.Int64Value(int64(workflow.AllowCertCertValidity)),
 			AllowLocalFiles:          types.BoolValue(workflow.AllowLocalFiles),
 			AllowLocalFilesWhiteList: types.BoolValue(workflow.AllowLocalFilesWhiteList),
-			//AllowLocalFilesLocalPaths: types.ListValueFrom(ctx, types.StringType, workflow.AllowLocalFilesLocalPaths),
-			//AllowLocalFilesLocalPaths: workflow.AllowLocalFilesLocalPaths.Elements(),
+		}
+
+		for _, items := range workflow.AllowLocalFilesLocalPaths {
+			fmt.Printf("Items : %+v", items)
+
+			state.Workflows = append(state.Workflows, workflowModel{
+				AllowLocalFilesLocalPath: types.StringValue(items),
+			})
 		}
 
 		//fmt.Println("PARSED WORKFLOWS")
 		//spew.Dump(workflowState)
 
 		state.Workflows = append(state.Workflows, workflowState)
-	}
 
+	}
 	// Set state
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
