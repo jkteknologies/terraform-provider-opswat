@@ -59,7 +59,8 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Process files from servers flag (false = ALLOW ALL EXCEPT, true = DENY ALL EXCEPT).",
 							Computed:    true,
 						},
-						"allow_local_files_local_paths": schema.StringAttribute{
+						"allow_local_files_local_paths": schema.ListAttribute{
+							ElementType: types.StringType,
 							Description: "Paths.",
 							Computed:    true,
 						},
@@ -138,7 +139,7 @@ type workflowModel struct {
 	AllowCertCertValidity    types.Int64  `tfsdk:"allow_cert_cert_validity"`
 	AllowLocalFiles          types.Bool   `tfsdk:"allow_local_files"`
 	AllowLocalFilesWhiteList types.Bool   `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPath types.String `tfsdk:"allow_local_files_local_paths"`
+	AllowLocalFilesLocalPath types.List   `tfsdk:"allow_local_files_local_paths"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -167,13 +168,15 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			AllowCertCertValidity:    types.Int64Value(int64(workflow.AllowCertCertValidity)),
 			AllowLocalFiles:          types.BoolValue(workflow.AllowLocalFiles),
 			AllowLocalFilesWhiteList: types.BoolValue(workflow.AllowLocalFilesWhiteList),
+			//AllowLocalFilesLocalPath: types.ListValue(),
 		}
 
 		for _, items := range workflow.AllowLocalFilesLocalPaths {
 			fmt.Printf("Items : %+v", items)
 
+			path := []items
 			state.Workflows = append(state.Workflows, workflowModel{
-				AllowLocalFilesLocalPath: types.StringValue(items),
+				AllowLocalFilesLocalPath: path,
 			})
 		}
 
