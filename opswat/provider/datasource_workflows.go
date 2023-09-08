@@ -106,13 +106,6 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Restrictions - Restrict access to following roles",
 							Computed:    true,
 						},
-						"pref_hashes": schema.ObjectAttribute{
-							AttributeTypes: map[string]attr.Type{
-								"ds_advanced_setting_hash": types.StringType,
-							},
-							Description: "Pref hashes",
-							Computed:    true,
-						},
 						"result_allowed": schema.ListNestedAttribute{
 							Computed: true,
 							NestedObject: schema.NestedAttributeObject{
@@ -197,14 +190,8 @@ type workflowModel struct {
 	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
 	ZoneID                               types.Int64          `tfsdk:"zone_id"`
 	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
-	PrefHashes                           PrefHashesModel      `tfsdk:"pref_hashes"`
 	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
-	OptionValues                         OptionValues         `tfsdk:"option_values"`
-}
-
-// PrefHashesModel
-type PrefHashesModel struct {
-	DSAdvancedSettingHash types.String `tfsdk:"ds_advanced_setting_hash"`
+	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
 }
 
 // ResultAllowModel
@@ -214,7 +201,7 @@ type ResultAllowedModel struct {
 }
 
 // OptionValues
-type OptionValues struct {
+type OptionValuesModel struct {
 	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
 	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
 	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
@@ -272,8 +259,8 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),
 			ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 			ScanAllowed:                          append(workflow.ScanAllowed),
-			PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
-			OptionValues: OptionValues{
+			//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
+			OptionValues: OptionValuesModel{
 				ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
 				ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxRecursionLevel)),
 				ArchiveHandlingMaxSizeFiles:             types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxSizeFiles)),

@@ -119,7 +119,7 @@ func (r *Queue) Read(ctx context.Context, req resource.ReadRequest, resp *resour
 		return
 	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed item
 	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -152,7 +152,7 @@ func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *re
 	// Generate API request body from plan
 	queue := plan.MaxQueuePerAgent.ValueInt64()
 
-	// Update existing order
+	// Update existing item
 	_, err := r.client.UpdateQueue(int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -162,7 +162,7 @@ func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *re
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(

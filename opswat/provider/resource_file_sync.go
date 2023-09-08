@@ -75,7 +75,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	// Generate API request body from plan
 	timeout := plan.Timeout.ValueInt64()
 
-	// Update existing order
+	// Update existing item
 	_, err := r.client.CreateGlobalSync(int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -85,7 +85,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetGlobalSync()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -114,7 +114,7 @@ func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed item
 	result, err := r.client.GetGlobalSync()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -147,7 +147,7 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 	// Generate API request body from plan
 	timeout := plan.Timeout.ValueInt64()
 
-	// Update existing order
+	// Update existing item
 	_, err := r.client.UpdateGlobalSync(int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -157,7 +157,7 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetGlobalSync()
 	if err != nil {
 		resp.Diagnostics.AddError(

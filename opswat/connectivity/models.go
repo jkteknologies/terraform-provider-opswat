@@ -69,7 +69,6 @@ type Workflow struct {
 	ScanAllowed                                 []interface{}   `json:"scan_allowed"`
 	WorkflowId                                  int             `json:"workflow_id"`
 	ZoneId                                      int             `json:"zone_id"`
-	PrefHashes                                  PrefHash        `json:"pref_hashes"`
 	ResultAllowed                               []ResultAllowed `json:"result_allowed"`
 	OptionValues                                OptionValues    `json:"option_values"`
 }
@@ -93,11 +92,6 @@ type OptionValues struct {
 	ScanFilescanGlobalScanTimeout           int  `json:"scan.filescan.global_scan_timeout"`
 	ScanFilescanPerEngineScanTimeout        int  `json:"scan.filescan.per_engine_scan_timeout"`
 	VulFilescanTimeoutVulnerabilityScanning int  `json:"vul.filescan.timeout_vulnerability_scanning"`
-}
-
-// PrefHashes
-type PrefHash struct {
-	DSADVANCEDSETTINGHASH string `json:"DS_ADVANCED_SETTING_HASH"`
 }
 
 // ResultAllowed

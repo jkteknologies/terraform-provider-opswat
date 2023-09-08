@@ -43,7 +43,7 @@ func (r *Quarantine) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 	}
 }
 
-// timeouts maps timeout schema data.
+// QuarantineModel schema
 type QuarantineModel struct {
 	Cleanuprange types.Int64 `tfsdk:"cleanup_range"`
 }
@@ -81,7 +81,7 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 		Cleanuprange: int(plan.Cleanuprange.ValueInt64()),
 	}
 
-	// Update existing order
+	// Update existing item
 	_, err := r.client.CreateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -91,7 +91,7 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -120,7 +120,7 @@ func (r *Quarantine) Read(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed item
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -154,7 +154,7 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 		Cleanuprange: int(plan.Cleanuprange.ValueInt64()),
 	}
 
-	// Update existing order
+	// Update existing item
 	_, err := r.client.UpdateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -164,7 +164,7 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
