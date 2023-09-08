@@ -47,7 +47,7 @@ type License struct {
 }
 
 // API /admin/config/scan
-type scanQueue struct {
+type Queue struct {
 	MaxQueuePerAgent int `json:"max_queue_per_agent"`
 }
 

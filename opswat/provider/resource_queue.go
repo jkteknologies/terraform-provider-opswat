@@ -11,39 +11,44 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &globalSync{}
-	_ resource.ResourceWithConfigure = &globalSync{}
+	_ resource.Resource              = &Queue{}
+	_ resource.ResourceWithConfigure = &Queue{}
 )
 
-// NewGlobalSync is a helper function to simplify the provider implementation.
-func NewGlobalSync() resource.Resource {
-	return &globalSync{}
+// NewQueue is a helper function to simplify the provider implementation.
+func NewQueue() resource.Resource {
+	return &Queue{}
 }
 
-// globalSync is the resource implementation.
-type globalSync struct {
+// Queue is the resource implementation.
+type Queue struct {
 	client *opswatClient.Client
 }
 
+// Queue
+type queueModel struct {
+	MaxQueuePerAgent types.Int64 `tfsdk:"max_queue_per_agent"`
+}
+
 // Metadata returns the resource type name.
-func (r *globalSync) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_file_sync"
+func (r *Queue) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_queue"
 }
 
 // Schema defines the schema for the resource.
-func (r *globalSync) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Queue) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Global file sync timeout resource.",
+		Description: "Scan agent queue resource.",
 		Attributes: map[string]schema.Attribute{
-			"timeout": schema.Int64Attribute{
-				Description: "Global file sync can timeout.",
+			"max_queue_per_agent": schema.Int64Attribute{
+				Description: "Scan agent queue count.",
 				Required:    true,
 			},
 		},
 	}
 }
 
-func (r *globalSync) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *Queue) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -63,9 +68,9 @@ func (r *globalSync) Configure(_ context.Context, req resource.ConfigureRequest,
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *Queue) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan timeoutModel
+	var plan queueModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -73,29 +78,29 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	}
 
 	// Generate API request body from plan
-	timeout := plan.Timeout.ValueInt64()
+	queue := plan.MaxQueuePerAgent.ValueInt64()
 
 	// Update existing order
-	_, err := r.client.CreateGlobalSync(int(timeout))
+	_, err := r.client.CreateQueue(int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync Order",
+			"Error Updating OPSWAT Scan agent queue count",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT Scan agent queue count",
+			"Could not read OPSWAT Scan agent queue count "+err.Error(),
 		)
 		return
 	}
 
-	plan.Timeout = types.Int64Value(int64(result.Timeout))
+	plan.MaxQueuePerAgent = types.Int64Value(int64(result.MaxQueuePerAgent))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -105,9 +110,9 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 }
 
 // Read resource information.
-func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *Queue) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state timeoutModel
+	var state queueModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -115,16 +120,16 @@ func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	// Get refreshed order value from OPSWAT
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT Scan agent queue count",
+			"Could not read OPSWAT Scan agent queue count "+err.Error(),
 		)
 		return
 	}
 
-	state.Timeout = types.Int64Value(int64(result.Timeout))
+	state.MaxQueuePerAgent = types.Int64Value(int64(result.MaxQueuePerAgent))
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -135,9 +140,9 @@ func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *r
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan timeoutModel
+	var plan queueModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -145,29 +150,29 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 	}
 
 	// Generate API request body from plan
-	timeout := plan.Timeout.ValueInt64()
+	queue := plan.MaxQueuePerAgent.ValueInt64()
 
 	// Update existing order
-	_, err := r.client.UpdateGlobalSync(int(timeout))
+	_, err := r.client.UpdateQueue(int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync timeout",
+			"Error Updating OPSWAT Scan agent queue count",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
 	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Global sync timeout",
-			"Could not read OPSWAT Global sync timeout "+err.Error(),
+			"Error Reading OPSWAT Scan agent queue count",
+			"Could not read OPSWAT Scan agent queue count "+err.Error(),
 		)
 		return
 	}
 
-	plan.Timeout = types.Int64Value(int64(result.Timeout))
+	plan.MaxQueuePerAgent = types.Int64Value(int64(result.MaxQueuePerAgent))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -177,5 +182,5 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *globalSync) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *Queue) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 }

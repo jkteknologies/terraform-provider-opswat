@@ -35,19 +35,19 @@ func (r *Session) Schema(_ context.Context, _ resource.SchemaRequest, resp *reso
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
-			"absolutesessiontimeout": schema.Int64Attribute{
+			"absolute_session_timeout": schema.Int64Attribute{
 				Description: "The interval (in milliseconds) for overall session length timeout (regardless of activity). minimal 300000. 0 - for infinity sessions.",
 				Required:    true,
 			},
-			"allowcrossipsessions": schema.BoolAttribute{
+			"allow_crossip_sessions": schema.BoolAttribute{
 				Description: "Allow requests from the same user to come from different IPs.",
 				Required:    true,
 			},
-			"allowduplicatesession": schema.BoolAttribute{
+			"allow_duplicate_session": schema.BoolAttribute{
 				Description: "Allow same user to have multiple active sessions.",
 				Required:    true,
 			},
-			"sessiontimeout": schema.Int64Attribute{
+			"session_timeout": schema.Int64Attribute{
 				Description: "The interval (in milliseconds) for the user's session timeout, based on last activity. Timer starts after the last activity for the apikey. minimal - 60000. 0 - for infinity sessions.",
 				Required:    true,
 			},
@@ -55,12 +55,12 @@ func (r *Session) Schema(_ context.Context, _ resource.SchemaRequest, resp *reso
 	}
 }
 
-// timeouts maps timeout schema data.
+// Timeouts maps timeout schema data.
 type SessionModel struct {
-	AbsoluteSessionTimeout types.Int64 `tfsdk:"absolutesessiontimeout"`
-	AllowCrossIpSessions   types.Bool  `tfsdk:"allowcrossipsessions"`
-	AllowDuplicateSession  types.Bool  `tfsdk:"allowduplicatesession"`
-	SessionTimeout         types.Int64 `tfsdk:"sessiontimeout"`
+	AbsoluteSessionTimeout types.Int64 `tfsdk:"absolute_session_timeout"`
+	AllowCrossIpSessions   types.Bool  `tfsdk:"allow_crossip_sessions"`
+	AllowDuplicateSession  types.Bool  `tfsdk:"allow_duplicate_session"`
+	SessionTimeout         types.Int64 `tfsdk:"session_timeout"`
 }
 
 func (r *Session) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

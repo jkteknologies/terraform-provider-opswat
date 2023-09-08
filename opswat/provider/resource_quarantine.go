@@ -35,7 +35,7 @@ func (r *Quarantine) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 	resp.Schema = schema.Schema{
 		Description: "Global file sync can timeout resource.",
 		Attributes: map[string]schema.Attribute{
-			"cleanuprange": schema.Int64Attribute{
+			"cleanup_range": schema.Int64Attribute{
 				Description: "Setting quarantine clean up time (clean up records older than). Note:The clean up range is defined in hours.",
 				Required:    true,
 			},
@@ -45,7 +45,7 @@ func (r *Quarantine) Schema(_ context.Context, _ resource.SchemaRequest, resp *r
 
 // timeouts maps timeout schema data.
 type QuarantineModel struct {
-	Cleanuprange types.Int64 `tfsdk:"cleanuprange"`
+	Cleanuprange types.Int64 `tfsdk:"cleanup_range"`
 }
 
 func (r *Quarantine) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

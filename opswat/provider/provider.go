@@ -185,5 +185,6 @@ func (p *opswatProvider) Resources(_ context.Context) []func() resource.Resource
 		NewGlobalSync,
 		NewSession,
 		NewQuarantine,
+		NewQueue,
 	}
 }
