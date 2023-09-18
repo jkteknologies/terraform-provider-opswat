@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
 	"time"
@@ -34,37 +35,40 @@ func (r *Workflow) Metadata(_ context.Context, req resource.MetadataRequest, res
 
 // Schema defines the schema for the resource.
 func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	type X types.Object
+	obj := X{}
+
 	resp.Schema = schema.Schema{
 		Description: "Scan agent workflow resource.",
 		Attributes: map[string]schema.Attribute{
 			"allow_cert": schema.BoolAttribute{
 				Description: "Generate batch signature with certificate - Use certificate to generate batch signature flag.",
-				Computed:    true,
+				Required:    true,
 			},
 			"allow_cert_cert": schema.StringAttribute{
 				Description: "Certificate used for barch signing.",
-				Computed:    true,
+				Required:    true,
 			},
 			"allow_cert_cert_validity": schema.Int64Attribute{
 				Description: "Certificate validity (hours).",
-				Computed:    true,
+				Required:    true,
 			},
 			"allow_local_files": schema.BoolAttribute{
 				Description: "Process files from servers - Allow scan on server flag.",
-				Computed:    true,
+				Required:    true,
 			},
 			"allow_local_files_white_list": schema.BoolAttribute{
 				Description: "Process files from servers flag (false = ALLOW ALL EXCEPT, true = DENY ALL EXCEPT).",
-				Computed:    true,
+				Required:    true,
 			},
 			"allow_local_files_local_paths": schema.ListAttribute{
 				ElementType: types.StringType,
 				Description: "Paths.",
-				Computed:    true,
+				Required:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "Workflow description.",
-				Computed:    true,
+				Required:    true,
 			},
 			"id": schema.Int64Attribute{
 				Description: "Workflow id.",
@@ -72,11 +76,11 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"include_webhook_signature": schema.BoolAttribute{
 				Description: "Webhook - Include webhook signature flag.",
-				Computed:    true,
+				Required:    true,
 			},
 			"include_webhook_signature_certificate_id": schema.Int64Attribute{
 				Description: "Webhook - Certificate id.",
-				Computed:    true,
+				Required:    true,
 			},
 			"last_modified": schema.Int64Attribute{
 				Description: "Last modified timestamp (unix epoch).",
@@ -84,34 +88,34 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"mutable": schema.BoolAttribute{
 				Description: "Mutable flag.",
-				Computed:    true,
+				Required:    true,
 			},
 			"name": schema.StringAttribute{
 				Description: "Workflow name.",
-				Computed:    true,
+				Required:    true,
 			},
 			"workflow_id": schema.Int64Attribute{
 				Description: "Workflow id.",
-				Computed:    true,
+				Required:    true,
 			},
 			"zone_id": schema.Int64Attribute{
 				Description: "Workflow network zone id.",
-				Computed:    true,
+				Required:    true,
 			},
 			"scan_allowed": schema.ListAttribute{
 				ElementType: types.Int64Type,
 				Description: "Restrictions - Restrict access to following roles",
-				Computed:    true,
+				Optional:    true,
 			},
 			"result_allowed": schema.ListNestedAttribute{
-				Computed: true,
+				Optional: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"role": schema.Int64Attribute{
-							Computed: true,
+							Optional: true,
 						},
 						"visibility": schema.Int64Attribute{
-							Computed: true,
+							Optional: true,
 						},
 					},
 				},
@@ -138,7 +142,9 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					"vul_filescan_timeout_vulnerability_scanning": types.Int64Type,
 				},
 				Description: "Options",
-				Computed:    true,
+				Optional:    true,
+				Default:     objectdefault.StaticValue(types.Object(obj)),
+			),
 			},
 			//user_agents
 		},
@@ -379,12 +385,12 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		})
 	}
 
-	// Update existing order
+	// Update existing
 	_, err := r.client.UpdateWorkflow(int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Scan agent workflow count",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Error Updating OPSWAT workflow",
+			"Could not update workflow, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -393,8 +399,8 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	result, err := r.client.GetWorkflow(int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Scan agent workflow count",
-			"Could not read OPSWAT Scan agent workflow count "+err.Error(),
+			"Error Reading OPSWAT workflow",
+			"Could not read OPSWAT workflow "+err.Error(),
 		)
 		return
 	}
