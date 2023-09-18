@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
 	"time"
@@ -35,9 +34,6 @@ func (r *Workflow) Metadata(_ context.Context, req resource.MetadataRequest, res
 
 // Schema defines the schema for the resource.
 func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	type X types.Object
-	obj := X{}
-
 	resp.Schema = schema.Schema{
 		Description: "Scan agent workflow resource.",
 		Attributes: map[string]schema.Attribute{
@@ -143,8 +139,6 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 				Description: "Options",
 				Optional:    true,
-				Default:     objectdefault.StaticValue(types.Object(obj)),
-			),
 			},
 			//user_agents
 		},
