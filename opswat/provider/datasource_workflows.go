@@ -230,7 +230,7 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			ID:                                   types.Int64Value(int64(workflow.Id)),
 			IncludeWebhookSignature:              types.BoolValue(workflow.IncludeWebhookSignature),
 			IncludeWebhookSignatureCertificateID: types.Int64Value(int64(workflow.IncludeWebhookSignatureWebhookCertificateId)),
-			LastModified:                         types.Int64Value(workflow.LastModified),
+			LastModified:                         types.Int64Value(int64(workflow.LastModified)),
 			Mutable:                              types.BoolValue(workflow.Mutable),
 			Name:                                 types.StringValue(workflow.Name),
 			WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),

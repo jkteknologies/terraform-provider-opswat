@@ -76,9 +76,6 @@ func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, e
 	fmt.Println("----------- REQUEST -------------")
 	fmt.Println(string(preparedJson), err)
 
-	fmt.Println("----------- RULE ID -------------")
-	fmt.Println(string(workflowID), err)
-
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +137,7 @@ func (c *Client) CreateWorkflow(workflow Workflow) (*Workflow, error) {
 }
 
 // DeleteWorkflow - Delete workflow config
-func (c *Client) DeleteWorkflow(workflowID string) error {
+func (c *Client) DeleteWorkflow(workflowID int) error {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/admin/config/rule/%d", c.HostURL, workflowID), nil)
 	if err != nil {
@@ -153,7 +150,7 @@ func (c *Client) DeleteWorkflow(workflowID string) error {
 		return err
 	}
 
-	if string(body) != "{\"result\": \"Success\"}" {
+	if string(body) != `{"result":"Success"}` {
 		return errors.New(string(body))
 	}
 

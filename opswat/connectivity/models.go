@@ -60,11 +60,11 @@ type Workflow struct {
 	AllowLocalFilesWhiteList                    bool            `json:"allow_local_files.local_files_white_list"`
 	AllowLocalFilesLocalPaths                   []string        `json:"allow_local_files.local_paths"`
 	Description                                 string          `json:"description"`
-	Id                                          int             `json:"id"`
+	Id                                          int             `json:"id,omitempty"`
 	IncludeWebhookSignature                     bool            `json:"include_webhook_signature"`
 	IncludeWebhookSignatureWebhookCertificateId int             `json:"include_webhook_signature.webhook_certificate_id"`
-	LastModified                                int64           `json:"last_modified"`
-	Mutable                                     bool            `json:"mutable"`
+	LastModified                                int             `json:"last_modified,omitempty"`
+	Mutable                                     bool            `json:"mutable,omitempty"`
 	Name                                        string          `json:"name"`
 	ScanAllowed                                 []interface{}   `json:"scan_allowed"`
 	WorkflowId                                  int             `json:"workflow_id"`

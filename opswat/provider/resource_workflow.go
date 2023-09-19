@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
 )
@@ -96,6 +98,9 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"id": schema.Int64Attribute{
 				Description: "Workflow id.",
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_webhook_signature": schema.BoolAttribute{
 				Description: "Webhook - Include webhook signature flag.",
@@ -272,7 +277,7 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		},
 		ResultAllowed: []opswatClient.ResultAllowed{},
 		Id:            int(plan.ID.ValueInt64()),
-		LastModified:  plan.LastModified.ValueInt64(),
+		LastModified:  int(plan.LastModified.ValueInt64()),
 	}
 
 	for _, resultsallowed := range plan.ResultAllowed {
@@ -390,6 +395,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	// Retrieve values from plan
 	var plan workflowModel
 	diags := req.Plan.Get(ctx, &plan)
+
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -407,8 +413,8 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		//Id:                        int(plan.ID.ValueInt64()),
 		IncludeWebhookSignature:                     plan.IncludeWebhookSignature.ValueBool(),
 		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
-		//LastModified:  plan.LastModified.ValueInt64(),
-		Mutable:       plan.Mutable.ValueBool(),
+		//LastModified:  int(plan.LastModified.ValueInt64()),
+		//Mutable:       plan.Mutable.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		WorkflowId:    int(plan.WorkflowID.ValueInt64()),
 		ZoneId:        int(plan.ZoneID.ValueInt64()),
@@ -444,13 +450,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		})
 	}
 
-	fmt.Println("----------- RULE ID SEND from JSON ------------")
-	fmt.Println(string(rune(json.Id)))
-
-	fmt.Println("----------- RULE ID SEND from PLAN ------------")
-	fmt.Println(string(plan.ID.ValueInt64()))
-
-	// Update existing
+	// Update existing workflow based on ID
 	_, err := r.client.UpdateWorkflow(int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -529,4 +529,21 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *Workflow) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Retrieve values from plan
+	var state workflowModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update existing workflow based on ID
+	err := r.client.DeleteWorkflow(int(state.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Delete OPSWAT workflow",
+			"Could not update workflow, unexpected error: "+err.Error(),
+		)
+		return
+	}
 }
