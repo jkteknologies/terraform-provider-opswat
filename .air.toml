@@ -4,13 +4,13 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  #bin = "tmp\\main.exe"
+  bin = "C:\\Users\\s9p5je\\go\\bin\\terraform-provider-opswat.exe"
   cmd = "go install ."
-  delay = 0
+  delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "examples", "website", ".github"]
   exclude_file = []
   exclude_regex = ["_test.go"]
-  exclude_unchanged = true
+  exclude_unchanged = false
   follow_symlink = false
   full_bin = ""
   include_dir = []
@@ -19,7 +19,7 @@ tmp_dir = "tmp"
   kill_delay = "5s"
   log = "build-errors.log"
   poll = false
-  poll_interval = 10000
+  poll_interval = 1000
   rerun = false
   rerun_delay = 15000
   send_interrupt = false

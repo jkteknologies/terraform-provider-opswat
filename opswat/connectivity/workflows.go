@@ -72,6 +72,10 @@ func (c *Client) GetWorkflow(workflowID int) (*Workflow, error) {
 func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, error) {
 
 	preparedJson, err := json.Marshal(workflow)
+
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
+
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +106,15 @@ func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, e
 func (c *Client) CreateWorkflow(workflow Workflow) (*Workflow, error) {
 
 	preparedJson, err := json.Marshal(workflow)
+
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
+
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/rule", c.HostURL), strings.NewReader(string(preparedJson)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/admin/config/rule", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}

@@ -85,8 +85,8 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 	_, err := r.client.CreateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT session config",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Error Updating OPSWAT quarantine config",
+			"Could not update order, quarantine error: "+err.Error(),
 		)
 		return
 	}
@@ -95,8 +95,8 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT session config",
-			"Could not read OPSWAT session config "+err.Error(),
+			"Error Reading OPSWAT quarantine config",
+			"Could not read OPSWAT quarantine config "+err.Error(),
 		)
 		return
 	}
@@ -124,8 +124,8 @@ func (r *Quarantine) Read(ctx context.Context, req resource.ReadRequest, resp *r
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT session config",
-			"Could not read OPSWAT session config "+err.Error(),
+			"Error Reading OPSWAT quarantine config",
+			"Could not read OPSWAT quarantine config "+err.Error(),
 		)
 		return
 	}
@@ -158,7 +158,7 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 	_, err := r.client.UpdateQuarantine(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT session config",
+			"Error Updating OPSWAT quarantine config",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
@@ -168,8 +168,8 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 	result, err := r.client.GetQuarantine()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT session config",
-			"Could not read OPSWAT session config "+err.Error(),
+			"Error Reading OPSWAT quarantine config",
+			"Could not read OPSWAT quarantine config "+err.Error(),
 		)
 		return
 	}

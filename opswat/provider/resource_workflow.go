@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
-	"time"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -25,6 +24,60 @@ func NewWorkflow() resource.Resource {
 // Workflow is the resource implementation.
 type Workflow struct {
 	client *opswatClient.Client
+}
+
+type workflowsModel struct {
+	Workflows []workflowModel `tfsdk:"workflows"`
+}
+
+type workflowModel struct {
+	AllowCert                            types.Bool           `tfsdk:"allow_cert"`
+	AllowCertCert                        types.String         `tfsdk:"allow_cert_cert"`
+	AllowCertCertValidity                types.Int64          `tfsdk:"allow_cert_cert_validity"`
+	AllowLocalFiles                      types.Bool           `tfsdk:"allow_local_files"`
+	AllowLocalFilesWhiteList             types.Bool           `tfsdk:"allow_local_files_white_list"`
+	AllowLocalFilesLocalPaths            []string             `tfsdk:"allow_local_files_local_paths"`
+	Description                          types.String         `tfsdk:"description"`
+	IncludeWebhookSignature              types.Bool           `tfsdk:"include_webhook_signature"`
+	IncludeWebhookSignatureCertificateID types.Int64          `tfsdk:"include_webhook_signature_certificate_id"`
+	Mutable                              types.Bool           `tfsdk:"mutable"`
+	Name                                 types.String         `tfsdk:"name"`
+	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
+	ZoneID                               types.Int64          `tfsdk:"zone_id"`
+	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
+	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
+	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
+	UserAgents                           []string             `tfsdk:"user_agents"`
+	ID                                   types.Int64          `tfsdk:"id"`
+	LastModified                         types.Int64          `tfsdk:"last_modified"`
+}
+
+// ResultAllowModel test
+type ResultAllowedModel struct {
+	Role       types.Int64 `tfsdk:"role"`
+	Visibility types.Int64 `tfsdk:"visibility"`
+}
+
+// OptionValues
+type OptionValuesModel struct {
+	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
+	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
+	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
+	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_handling_timeout"`
+	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
+	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
+	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
+	ProcessInfoMaxDownloadSize              types.Int64 `tfsdk:"process_info_max_download_size"`
+	ProcessInfoMaxFileSize                  types.Int64 `tfsdk:"process_info_max_file_size"`
+	ProcessInfoQuarantine                   types.Bool  `tfsdk:"process_info_quarantine"`
+	ProcessInfoSkipHash                     types.Bool  `tfsdk:"process_info_skip_hash"`
+	ProcessInfoSkipProcessingFastSymlink    types.Bool  `tfsdk:"process_info_skip_processing_fast_symlink"`
+	ProcessInfoWorkflowPriority             types.Int64 `tfsdk:"process_info_workflow_priority"`
+	ScanFilescanCheckAvEngine               types.Bool  `tfsdk:"scan_filescan_check_av_engine"`
+	ScanFilescanDownloadTimeout             types.Int64 `tfsdk:"scan_filescan_download_timeout"`
+	ScanFilescanGlobalScanTimeout           types.Int64 `tfsdk:"scan_filescan_global_scan_timeout"`
+	ScanFilescanPerEngineScanTimeout        types.Int64 `tfsdk:"scan_filescan_per_engine_scan_timeout"`
+	VulFilescanTimeoutVulnerabilityScanning types.Int64 `tfsdk:"vul_filescan_timeout_vulnerability_scanning"`
 }
 
 // Metadata returns the resource type name.
@@ -140,7 +193,11 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Description: "Options",
 				Optional:    true,
 			},
-			//user_agents
+			"user_agents": schema.ListAttribute{
+				ElementType: types.StringType,
+				Description: "Restrictions - Limit to specified user agents.",
+				Required:    true,
+			},
 		},
 	}
 }
@@ -174,34 +231,7 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	now := time.Now()
-
-	// Generate API request body from plan
-	json := opswatClient.Workflow{
-		AllowCert:                 plan.AllowCert.ValueBool(),
-		AllowCertCert:             plan.AllowCertCert.ValueString(),
-		AllowCertCertValidity:     int(plan.AllowCertCertValidity.ValueInt64()),
-		AllowLocalFiles:           plan.AllowLocalFiles.ValueBool(),
-		AllowLocalFilesWhiteList:  plan.AllowLocalFilesWhiteList.ValueBool(),
-		AllowLocalFilesLocalPaths: plan.AllowLocalFilesLocalPaths,
-		Description:               plan.Description.ValueString(),
-		IncludeWebhookSignature:   plan.IncludeWebhookSignature.ValueBool(),
-		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
-		LastModified: now.UnixNano(),
-		Mutable:      plan.Mutable.ValueBool(),
-		Name:         plan.Name.ValueString(),
-		ScanAllowed:  plan.ScanAllowed,
-		WorkflowId:   int(plan.WorkflowID.ValueInt64()),
-		ZoneId:       int(plan.ZoneID.ValueInt64()),
-	}
-
-	for _, resultsallowed := range plan.ResultAllowed {
-		plan.ResultAllowed = append(plan.ResultAllowed, ResultAllowedModel{
-			Role:       resultsallowed.Role,
-			Visibility: resultsallowed.Visibility,
-		})
-	}
-
+	//now := time.Now()
 	plan.OptionValues = OptionValuesModel{
 		ArchiveHandlingMaxNumberFiles:           plan.OptionValues.ArchiveHandlingMaxNumberFiles,
 		ArchiveHandlingMaxRecursionLevel:        plan.OptionValues.ArchiveHandlingMaxRecursionLevel,
@@ -223,11 +253,66 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		VulFilescanTimeoutVulnerabilityScanning: plan.OptionValues.VulFilescanTimeoutVulnerabilityScanning,
 	}
 
+	for _, resultsallowed := range plan.ResultAllowed {
+		plan.ResultAllowed = append(plan.ResultAllowed, ResultAllowedModel{
+			Role:       resultsallowed.Role,
+			Visibility: resultsallowed.Visibility,
+		})
+	}
+
+	// Generate API request body from plan
+	json := opswatClient.Workflow{
+		AllowCert:                 plan.AllowCert.ValueBool(),
+		AllowCertCert:             plan.AllowCertCert.ValueString(),
+		AllowCertCertValidity:     int(plan.AllowCertCertValidity.ValueInt64()),
+		AllowLocalFiles:           plan.AllowLocalFiles.ValueBool(),
+		AllowLocalFilesWhiteList:  plan.AllowLocalFilesWhiteList.ValueBool(),
+		AllowLocalFilesLocalPaths: plan.AllowLocalFilesLocalPaths,
+		Description:               plan.Description.ValueString(),
+		IncludeWebhookSignature:   plan.IncludeWebhookSignature.ValueBool(),
+		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
+		Mutable:     plan.Mutable.ValueBool(),
+		Name:        plan.Name.ValueString(),
+		ScanAllowed: plan.ScanAllowed,
+		WorkflowId:  int(plan.WorkflowID.ValueInt64()),
+		ZoneId:      int(plan.ZoneID.ValueInt64()),
+		UserAgents:  plan.UserAgents,
+		OptionValues: opswatClient.OptionValues{
+			ArchiveHandlingMaxRecursionLevel:        int(plan.OptionValues.ArchiveHandlingMaxRecursionLevel.ValueInt64()),
+			ArchiveHandlingMaxSizeFiles:             int(plan.OptionValues.ArchiveHandlingMaxSizeFiles.ValueInt64()),
+			ArchiveHandlingTimeout:                  int(plan.OptionValues.ArchiveHandlingTimeout.ValueInt64()),
+			FiletypeAnalysisTimeout:                 int(plan.OptionValues.FiletypeAnalysisTimeout.ValueInt64()),
+			ProcessInfoGlobalTimeout:                plan.OptionValues.ProcessInfoGlobalTimeout.ValueBool(),
+			ProcessInfoGlobalTimeoutValue:           int(plan.OptionValues.ProcessInfoGlobalTimeoutValue.ValueInt64()),
+			ProcessInfoMaxDownloadSize:              int(plan.OptionValues.ProcessInfoMaxDownloadSize.ValueInt64()),
+			ProcessInfoMaxFileSize:                  int(plan.OptionValues.ProcessInfoMaxFileSize.ValueInt64()),
+			ProcessInfoQuarantine:                   plan.OptionValues.ProcessInfoQuarantine.ValueBool(),
+			ProcessInfoSkipHash:                     plan.OptionValues.ProcessInfoSkipHash.ValueBool(),
+			ProcessInfoSkipProcessingFastSymlink:    plan.OptionValues.ProcessInfoSkipProcessingFastSymlink.ValueBool(),
+			ProcessInfoWorkflowPriority:             int(plan.OptionValues.ProcessInfoWorkflowPriority.ValueInt64()),
+			ScanFilescanCheckAvEngine:               plan.OptionValues.ScanFilescanCheckAvEngine.ValueBool(),
+			ScanFilescanDownloadTimeout:             int(plan.OptionValues.ScanFilescanDownloadTimeout.ValueInt64()),
+			ScanFilescanGlobalScanTimeout:           int(plan.OptionValues.ScanFilescanGlobalScanTimeout.ValueInt64()),
+			ScanFilescanPerEngineScanTimeout:        int(plan.OptionValues.ScanFilescanPerEngineScanTimeout.ValueInt64()),
+			VulFilescanTimeoutVulnerabilityScanning: int(plan.OptionValues.VulFilescanTimeoutVulnerabilityScanning.ValueInt64()),
+		},
+		ResultAllowed: []opswatClient.ResultAllowed{},
+		Id:            int(plan.ID.ValueInt64()),
+		LastModified:  plan.LastModified.ValueInt64(),
+	}
+
+	for _, resultsallowed := range plan.ResultAllowed {
+		json.ResultAllowed = append(json.ResultAllowed, opswatClient.ResultAllowed{
+			Role:       int(resultsallowed.Role.ValueInt64()),
+			Visibility: int(resultsallowed.Visibility.ValueInt64()),
+		})
+	}
+
 	// Update existing order
 	_, err := r.client.CreateWorkflow(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Scan agent workflow count",
+			"Error Creating OPSWAT workflow",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
@@ -254,7 +339,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	workflow, err := r.client.GetWorkflow(int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT Scan agent workflow count",
+			"Error Reading OPSWAT workflow",
 			"Could not read OPSWAT Scan agent workflow count "+err.Error(),
 		)
 		return
@@ -277,6 +362,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),
 		ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 		ScanAllowed:                          append(workflow.ScanAllowed),
+		UserAgents:                           append(workflow.UserAgents),
 		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
@@ -343,13 +429,14 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		Id:                        int(plan.ID.ValueInt64()),
 		IncludeWebhookSignature:   plan.IncludeWebhookSignature.ValueBool(),
 		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
-		LastModified:  plan.LastModified.ValueInt64(),
+		//LastModified:  plan.LastModified.ValueInt64(),
 		Mutable:       plan.Mutable.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		WorkflowId:    int(plan.WorkflowID.ValueInt64()),
 		ZoneId:        int(plan.ZoneID.ValueInt64()),
 		ScanAllowed:   plan.ScanAllowed,
 		ResultAllowed: []opswatClient.ResultAllowed{},
+		UserAgents:    plan.UserAgents,
 		OptionValues: opswatClient.OptionValues{
 			ArchiveHandlingMaxNumberFiles:           int(plan.OptionValues.ArchiveHandlingMaxNumberFiles.ValueInt64()),
 			ArchiveHandlingMaxRecursionLevel:        int(plan.OptionValues.ArchiveHandlingMaxRecursionLevel.ValueInt64()),
@@ -416,6 +503,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		WorkflowID:                           types.Int64Value(int64(result.WorkflowId)),
 		ZoneID:                               types.Int64Value(int64(result.ZoneId)),
 		ScanAllowed:                          append(result.ScanAllowed),
+		UserAgents:                           append(result.UserAgents),
 		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(result.OptionValues.ArchiveHandlingMaxNumberFiles)),
@@ -438,7 +526,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(result.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
 		}}
 
-	//fmt.Println("PARSED WORKFLOWS") test
+	//fmt.Println("PARSED WORKFLOWS")
 	//spew.Dump(workflowState)
 
 	for _, resultsallowed := range result.ResultAllowed {

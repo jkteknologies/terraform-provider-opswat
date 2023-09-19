@@ -139,7 +139,7 @@ func (p *opswatProvider) Configure(ctx context.Context, req provider.ConfigureRe
 			path.Root("apikey"),
 			"Missing OPSWAT API key",
 			"The provider cannot create the OPSWAT API client as there is a missing or empty value for the OPSWAT API apikey. "+
-				"Set the apikey value in the configuration or use the OPSWAT_USERNAME environment variable. "+
+				"Set the apikey value in the configuration or use the OPSWAT_APIKEY environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}

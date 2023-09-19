@@ -143,7 +143,11 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 							Description: "Options",
 							Computed:    true,
 						},
-						//user_agents
+						"user_agents": schema.ListAttribute{
+							ElementType: types.StringType,
+							Description: "Restrictions - Limit to specified user agents.",
+							Required:    true,
+						},
 					},
 				},
 			},
@@ -171,55 +175,6 @@ func (d *Workflows) Configure(_ context.Context, req datasource.ConfigureRequest
 
 type workflowsDataSourceModel struct {
 	Workflows []workflowModel `tfsdk:"workflows"`
-}
-
-type workflowModel struct {
-	AllowCert                            types.Bool           `tfsdk:"allow_cert"`
-	AllowCertCert                        types.String         `tfsdk:"allow_cert_cert"`
-	AllowCertCertValidity                types.Int64          `tfsdk:"allow_cert_cert_validity"`
-	AllowLocalFiles                      types.Bool           `tfsdk:"allow_local_files"`
-	AllowLocalFilesWhiteList             types.Bool           `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPaths            []string             `tfsdk:"allow_local_files_local_paths"`
-	Description                          types.String         `tfsdk:"description"`
-	ID                                   types.Int64          `tfsdk:"id"`
-	IncludeWebhookSignature              types.Bool           `tfsdk:"include_webhook_signature"`
-	IncludeWebhookSignatureCertificateID types.Int64          `tfsdk:"include_webhook_signature_certificate_id"`
-	LastModified                         types.Int64          `tfsdk:"last_modified"`
-	Mutable                              types.Bool           `tfsdk:"mutable"`
-	Name                                 types.String         `tfsdk:"name"`
-	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
-	ZoneID                               types.Int64          `tfsdk:"zone_id"`
-	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
-	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
-	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
-}
-
-// ResultAllowModel
-type ResultAllowedModel struct {
-	Role       types.Int64 `tfsdk:"role"`
-	Visibility types.Int64 `tfsdk:"visibility"`
-}
-
-// OptionValues
-type OptionValuesModel struct {
-	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
-	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
-	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
-	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_handling_timeout"`
-	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
-	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
-	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
-	ProcessInfoMaxDownloadSize              types.Int64 `tfsdk:"process_info_max_download_size"`
-	ProcessInfoMaxFileSize                  types.Int64 `tfsdk:"process_info_max_file_size"`
-	ProcessInfoQuarantine                   types.Bool  `tfsdk:"process_info_quarantine"`
-	ProcessInfoSkipHash                     types.Bool  `tfsdk:"process_info_skip_hash"`
-	ProcessInfoSkipProcessingFastSymlink    types.Bool  `tfsdk:"process_info_skip_processing_fast_symlink"`
-	ProcessInfoWorkflowPriority             types.Int64 `tfsdk:"process_info_workflow_priority"`
-	ScanFilescanCheckAvEngine               types.Bool  `tfsdk:"scan_filescan_check_av_engine"`
-	ScanFilescanDownloadTimeout             types.Int64 `tfsdk:"scan_filescan_download_timeout"`
-	ScanFilescanGlobalScanTimeout           types.Int64 `tfsdk:"scan_filescan_global_scan_timeout"`
-	ScanFilescanPerEngineScanTimeout        types.Int64 `tfsdk:"scan_filescan_per_engine_scan_timeout"`
-	VulFilescanTimeoutVulnerabilityScanning types.Int64 `tfsdk:"vul_filescan_timeout_vulnerability_scanning"`
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -253,7 +208,7 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			ID:                                   types.Int64Value(int64(workflow.Id)),
 			IncludeWebhookSignature:              types.BoolValue(workflow.IncludeWebhookSignature),
 			IncludeWebhookSignatureCertificateID: types.Int64Value(int64(workflow.IncludeWebhookSignatureWebhookCertificateId)),
-			LastModified:                         types.Int64Value(int64(workflow.LastModified)),
+			LastModified:                         types.Int64Value(workflow.LastModified),
 			Mutable:                              types.BoolValue(workflow.Mutable),
 			Name:                                 types.StringValue(workflow.Name),
 			WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),
@@ -280,6 +235,7 @@ func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 				ScanFilescanPerEngineScanTimeout:        types.Int64Value(int64(workflow.OptionValues.ScanFilescanPerEngineScanTimeout)),
 				VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(workflow.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
 			},
+			UserAgents: append(workflow.UserAgents),
 		}
 
 		//fmt.Println("PARSED WORKFLOWS") test

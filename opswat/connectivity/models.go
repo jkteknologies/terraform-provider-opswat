@@ -71,6 +71,7 @@ type Workflow struct {
 	ZoneId                                      int             `json:"zone_id"`
 	ResultAllowed                               []ResultAllowed `json:"result_allowed"`
 	OptionValues                                OptionValues    `json:"option_values"`
+	UserAgents                                  []string        `json:"user_agents"`
 }
 
 type OptionValues struct {
