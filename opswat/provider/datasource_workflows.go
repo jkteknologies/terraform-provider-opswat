@@ -177,6 +177,28 @@ type workflowsDataSourceModel struct {
 	Workflows []workflowModel `tfsdk:"workflows"`
 }
 
+type workflowModel struct {
+	AllowCert                            types.Bool           `tfsdk:"allow_cert"`
+	AllowCertCert                        types.String         `tfsdk:"allow_cert_cert"`
+	AllowCertCertValidity                types.Int64          `tfsdk:"allow_cert_cert_validity"`
+	AllowLocalFiles                      types.Bool           `tfsdk:"allow_local_files"`
+	AllowLocalFilesWhiteList             types.Bool           `tfsdk:"allow_local_files_white_list"`
+	AllowLocalFilesLocalPaths            []string             `tfsdk:"allow_local_files_local_paths"`
+	Description                          types.String         `tfsdk:"description"`
+	IncludeWebhookSignature              types.Bool           `tfsdk:"include_webhook_signature"`
+	IncludeWebhookSignatureCertificateID types.Int64          `tfsdk:"include_webhook_signature_certificate_id"`
+	Mutable                              types.Bool           `tfsdk:"mutable"`
+	Name                                 types.String         `tfsdk:"name"`
+	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
+	ZoneID                               types.Int64          `tfsdk:"zone_id"`
+	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
+	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
+	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
+	UserAgents                           []string             `tfsdk:"user_agents"`
+	ID                                   types.Int64          `tfsdk:"id"`
+	LastModified                         types.Int64          `tfsdk:"last_modified"`
+}
+
 // Read refreshes the Terraform state with the latest data.
 func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state workflowsDataSourceModel

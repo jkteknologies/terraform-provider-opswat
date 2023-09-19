@@ -26,32 +26,6 @@ type Workflow struct {
 	client *opswatClient.Client
 }
 
-type workflowsModel struct {
-	Workflows []workflowModel `tfsdk:"workflows"`
-}
-
-type workflowModel struct {
-	AllowCert                            types.Bool           `tfsdk:"allow_cert"`
-	AllowCertCert                        types.String         `tfsdk:"allow_cert_cert"`
-	AllowCertCertValidity                types.Int64          `tfsdk:"allow_cert_cert_validity"`
-	AllowLocalFiles                      types.Bool           `tfsdk:"allow_local_files"`
-	AllowLocalFilesWhiteList             types.Bool           `tfsdk:"allow_local_files_white_list"`
-	AllowLocalFilesLocalPaths            []string             `tfsdk:"allow_local_files_local_paths"`
-	Description                          types.String         `tfsdk:"description"`
-	IncludeWebhookSignature              types.Bool           `tfsdk:"include_webhook_signature"`
-	IncludeWebhookSignatureCertificateID types.Int64          `tfsdk:"include_webhook_signature_certificate_id"`
-	Mutable                              types.Bool           `tfsdk:"mutable"`
-	Name                                 types.String         `tfsdk:"name"`
-	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
-	ZoneID                               types.Int64          `tfsdk:"zone_id"`
-	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
-	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
-	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
-	UserAgents                           []string             `tfsdk:"user_agents"`
-	ID                                   types.Int64          `tfsdk:"id"`
-	LastModified                         types.Int64          `tfsdk:"last_modified"`
-}
-
 // ResultAllowModel test
 type ResultAllowedModel struct {
 	Role       types.Int64 `tfsdk:"role"`
@@ -309,7 +283,7 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Update existing order
-	_, err := r.client.CreateWorkflow(json)
+	workflow, err := r.client.CreateWorkflow(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT workflow",
@@ -318,7 +292,11 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	diags = resp.State.Set(ctx, plan)
+	// Populate computed values
+	plan.ID = types.Int64Value(int64(workflow.Id))
+	plan.LastModified = types.Int64Value(int64(workflow.LastModified))
+
+	resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -429,7 +407,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		Id:                        int(plan.ID.ValueInt64()),
 		IncludeWebhookSignature:   plan.IncludeWebhookSignature.ValueBool(),
 		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
-		//LastModified:  plan.LastModified.ValueInt64(),
+		LastModified:  plan.LastModified.ValueInt64(),
 		Mutable:       plan.Mutable.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		WorkflowId:    int(plan.WorkflowID.ValueInt64()),
