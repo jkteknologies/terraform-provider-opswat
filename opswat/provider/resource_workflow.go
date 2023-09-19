@@ -404,10 +404,10 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		AllowLocalFilesWhiteList:  plan.AllowLocalFilesWhiteList.ValueBool(),
 		AllowLocalFilesLocalPaths: plan.AllowLocalFilesLocalPaths,
 		Description:               plan.Description.ValueString(),
-		Id:                        int(plan.ID.ValueInt64()),
-		IncludeWebhookSignature:   plan.IncludeWebhookSignature.ValueBool(),
+		//Id:                        int(plan.ID.ValueInt64()),
+		IncludeWebhookSignature:                     plan.IncludeWebhookSignature.ValueBool(),
 		IncludeWebhookSignatureWebhookCertificateId: int(plan.IncludeWebhookSignatureCertificateID.ValueInt64()),
-		LastModified:  plan.LastModified.ValueInt64(),
+		//LastModified:  plan.LastModified.ValueInt64(),
 		Mutable:       plan.Mutable.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		WorkflowId:    int(plan.WorkflowID.ValueInt64()),
@@ -443,6 +443,12 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			Visibility: int(resultsallowed.Visibility.ValueInt64()),
 		})
 	}
+
+	fmt.Println("----------- RULE ID SEND from JSON ------------")
+	fmt.Println(string(rune(json.Id)))
+
+	fmt.Println("----------- RULE ID SEND from PLAN ------------")
+	fmt.Println(string(plan.ID.ValueInt64()))
 
 	// Update existing
 	_, err := r.client.UpdateWorkflow(int(plan.ID.ValueInt64()), json)

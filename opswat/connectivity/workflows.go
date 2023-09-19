@@ -76,6 +76,9 @@ func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, e
 	fmt.Println("----------- REQUEST -------------")
 	fmt.Println(string(preparedJson), err)
 
+	fmt.Println("----------- RULE ID -------------")
+	fmt.Println(string(workflowID), err)
+
 	if err != nil {
 		return nil, err
 	}

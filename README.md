@@ -1,10 +1,7 @@
 Terraform Provider For OPSWAT
 ==================
 
-- Tutorials: [learn.hashicorp.com](https://learn.hashicorp.com/terraform?track=getting-started#getting-started)
-- Documentation: https://www.terraform.io/docs/providers/alicloud/index.html
-- [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
-- Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
+- Documentation: https://registry.terraform.io/providers/gerbil/opswat/latest/docs
 - [![Release Go project](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml/badge.svg)](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml)
 
 Supported Versions
