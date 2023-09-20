@@ -210,35 +210,6 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	//now := time.Now()
-	plan.OptionValues = OptionValuesModel{
-		ArchiveHandlingMaxNumberFiles:           plan.OptionValues.ArchiveHandlingMaxNumberFiles,
-		ArchiveHandlingMaxRecursionLevel:        plan.OptionValues.ArchiveHandlingMaxRecursionLevel,
-		ArchiveHandlingMaxSizeFiles:             plan.OptionValues.ArchiveHandlingMaxSizeFiles,
-		ArchiveHandlingTimeout:                  plan.OptionValues.ArchiveHandlingTimeout,
-		FiletypeAnalysisTimeout:                 plan.OptionValues.FiletypeAnalysisTimeout,
-		ProcessInfoGlobalTimeout:                plan.OptionValues.ProcessInfoGlobalTimeout,
-		ProcessInfoGlobalTimeoutValue:           plan.OptionValues.ProcessInfoGlobalTimeoutValue,
-		ProcessInfoMaxDownloadSize:              plan.OptionValues.ProcessInfoMaxDownloadSize,
-		ProcessInfoMaxFileSize:                  plan.OptionValues.ProcessInfoMaxFileSize,
-		ProcessInfoQuarantine:                   plan.OptionValues.ProcessInfoQuarantine,
-		ProcessInfoSkipHash:                     plan.OptionValues.ProcessInfoSkipHash,
-		ProcessInfoSkipProcessingFastSymlink:    plan.OptionValues.ProcessInfoSkipProcessingFastSymlink,
-		ProcessInfoWorkflowPriority:             plan.OptionValues.ProcessInfoWorkflowPriority,
-		ScanFilescanCheckAvEngine:               plan.OptionValues.ScanFilescanCheckAvEngine,
-		ScanFilescanDownloadTimeout:             plan.OptionValues.ScanFilescanDownloadTimeout,
-		ScanFilescanGlobalScanTimeout:           plan.OptionValues.ScanFilescanGlobalScanTimeout,
-		ScanFilescanPerEngineScanTimeout:        plan.OptionValues.ScanFilescanPerEngineScanTimeout,
-		VulFilescanTimeoutVulnerabilityScanning: plan.OptionValues.VulFilescanTimeoutVulnerabilityScanning,
-	}
-
-	for _, resultsallowed := range plan.ResultAllowed {
-		plan.ResultAllowed = append(plan.ResultAllowed, ResultAllowedModel{
-			Role:       resultsallowed.Role,
-			Visibility: resultsallowed.Visibility,
-		})
-	}
-
 	// Generate API request body from plan
 	json := opswatClient.Workflow{
 		AllowCert:                 plan.AllowCert.ValueBool(),
@@ -259,6 +230,7 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		OptionValues: opswatClient.OptionValues{
 			ArchiveHandlingMaxRecursionLevel:        int(plan.OptionValues.ArchiveHandlingMaxRecursionLevel.ValueInt64()),
 			ArchiveHandlingMaxSizeFiles:             int(plan.OptionValues.ArchiveHandlingMaxSizeFiles.ValueInt64()),
+			ArchiveHandlingMaxNumberFiles:           int(plan.OptionValues.ArchiveHandlingMaxNumberFiles.ValueInt64()),
 			ArchiveHandlingTimeout:                  int(plan.OptionValues.ArchiveHandlingTimeout.ValueInt64()),
 			FiletypeAnalysisTimeout:                 int(plan.OptionValues.FiletypeAnalysisTimeout.ValueInt64()),
 			ProcessInfoGlobalTimeout:                plan.OptionValues.ProcessInfoGlobalTimeout.ValueBool(),

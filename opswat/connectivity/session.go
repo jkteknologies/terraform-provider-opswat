@@ -42,6 +42,9 @@ func (c *Client) UpdateSession(config Session) (*Session, error) {
 		return nil, err
 	}
 
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
+
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/session", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err

@@ -36,11 +36,13 @@ func (c *Client) GetQuarantine() (*Quarantine, error) {
 
 // UpdateQuarantine - Updates session config
 func (c *Client) UpdateQuarantine(config Quarantine) (*Quarantine, error) {
-
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
@@ -66,11 +68,13 @@ func (c *Client) UpdateQuarantine(config Quarantine) (*Quarantine, error) {
 
 // CreateQuarantine - Creates session config
 func (c *Client) CreateQuarantine(config Quarantine) (*Quarantine, error) {
-
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {

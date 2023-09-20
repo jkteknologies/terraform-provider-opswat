@@ -42,6 +42,9 @@ func (c *Client) UpdateQueue(queue int) (*Queue, error) {
 		return nil, err
 	}
 
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
+
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/scan", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
@@ -71,6 +74,9 @@ func (c *Client) CreateQueue(queue int) (*Queue, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("----------- REQUEST -------------")
+	fmt.Println(string(preparedJson), err)
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/scan", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {

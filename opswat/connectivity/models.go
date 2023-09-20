@@ -66,7 +66,7 @@ type Workflow struct {
 	LastModified                                int             `json:"last_modified,omitempty"`
 	Mutable                                     bool            `json:"mutable,omitempty"`
 	Name                                        string          `json:"name"`
-	ScanAllowed                                 []interface{}   `json:"scan_allowed"`
+	ScanAllowed                                 []int           `json:"scan_allowed"`
 	WorkflowId                                  int             `json:"workflow_id"`
 	ZoneId                                      int             `json:"zone_id"`
 	ResultAllowed                               []ResultAllowed `json:"result_allowed"`
@@ -99,4 +99,9 @@ type OptionValues struct {
 type ResultAllowed struct {
 	Role       int `json:"role"`
 	Visibility int `json:"visibility"`
+}
+
+// dir API /admin/userdirectory
+type userDirectory struct {
+	Timeout int `json:"timeout"`
 }

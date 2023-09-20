@@ -191,7 +191,7 @@ type workflowModel struct {
 	Name                                 types.String         `tfsdk:"name"`
 	WorkflowID                           types.Int64          `tfsdk:"workflow_id"`
 	ZoneID                               types.Int64          `tfsdk:"zone_id"`
-	ScanAllowed                          []interface{}        `tfsdk:"scan_allowed"`
+	ScanAllowed                          []int                `tfsdk:"scan_allowed"`
 	ResultAllowed                        []ResultAllowedModel `tfsdk:"result_allowed"`
 	OptionValues                         OptionValuesModel    `tfsdk:"option_values"`
 	UserAgents                           []string             `tfsdk:"user_agents"`

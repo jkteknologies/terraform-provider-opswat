@@ -1,9 +1,11 @@
 package opswatClient
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"strings"
 )
@@ -75,6 +77,10 @@ func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, e
 
 	fmt.Println("----------- REQUEST -------------")
 	fmt.Println(string(preparedJson), err)
+
+	ctx := context.TODO()
+	ctx = tflog.SetField(ctx, "json", preparedJson)
+	tflog.Info(ctx, "Workflow")
 
 	if err != nil {
 		return nil, err
