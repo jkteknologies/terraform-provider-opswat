@@ -9,7 +9,7 @@ import (
 )
 
 // GetDir - Returns global sync scan timeout
-func (c *Client) GetDir() (*userDirectory, error) {
+func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), nil)
 
 	if err != nil {
@@ -24,7 +24,7 @@ func (c *Client) GetDir() (*userDirectory, error) {
 		return nil, err
 	}
 
-	result := userDirectory{}
+	result := UserDirectory{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -36,7 +36,7 @@ func (c *Client) GetDir() (*userDirectory, error) {
 }
 
 // UpdateDir - Update global sync scan timeout
-func (c *Client) UpdateDir(timeout int) (*userDirectory, error) {
+func (c *Client) UpdateDir(timeout int) (*UserDirectory, error) {
 	timeoutJson := map[string]int{"timeout": timeout}
 	preparedJson, err := json.Marshal(timeoutJson)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *Client) UpdateDir(timeout int) (*userDirectory, error) {
 		return nil, err
 	}
 
-	result := userDirectory{}
+	result := UserDirectory{}
 
 	err = json.Unmarshal(body, &result)
 
@@ -66,9 +66,8 @@ func (c *Client) UpdateDir(timeout int) (*userDirectory, error) {
 }
 
 // CreateDir - Creates global sync scan timeout
-func (c *Client) CreateDir(timeout int) (*userDirectory, error) {
-	timeoutJson := map[string]int{"timeout": timeout}
-	preparedJson, err := json.Marshal(timeoutJson)
+func (c *Client) CreateDir(userDirectory UserDirectory) (*UserDirectory, error) {
+	preparedJson, err := json.Marshal(userDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func (c *Client) CreateDir(timeout int) (*userDirectory, error) {
 		return nil, err
 	}
 
-	result := userDirectory{}
+	result := UserDirectory{}
 
 	err = json.Unmarshal(body, &result)
 

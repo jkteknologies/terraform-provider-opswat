@@ -102,6 +102,36 @@ type ResultAllowed struct {
 }
 
 // dir API /admin/userdirectory
-type userDirectory struct {
-	Timeout int `json:"timeout"`
+type UserDirectory struct {
+	Type             string `json:"type"`
+	Enabled          bool   `json:"enabled"`
+	Name             string `json:"name"`
+	UserIdentifiedBy string `json:"user_identified_by"`
+	Sp               struct {
+		LoginUrl           string `json:"login_url"`
+		SupportLogoutUrl   bool   `json:"support_logout_url"`
+		SupportPrivateKey  bool   `json:"support_private_key"`
+		SupportEntityId    bool   `json:"support_entity_id"`
+		EnableIdpInitiated bool   `json:"enable_idp_initiated"`
+	} `json:"sp"`
+	Role struct {
+		Option  string `json:"option"`
+		Details struct {
+			Default int `json:"default"`
+		} `json:"details"`
+	} `json:"role"`
+	Version string `json:"version"`
+	Idp     struct {
+		AuthnRequestSigned bool   `json:"authn_request_signed"`
+		EntityId           string `json:"entity_id"`
+		LoginMethod        struct {
+			Post     string `json:"post"`
+			Redirect string `json:"redirect"`
+		} `json:"login_method"`
+		LogoutMethod struct {
+			Redirect string `json:"redirect"`
+		} `json:"logout_method"`
+		ValidUntil string `json:"valid_until"`
+		X509Cert   string `json:"x509_cert"`
+	} `json:"idp"`
 }
