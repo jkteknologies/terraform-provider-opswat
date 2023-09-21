@@ -120,13 +120,15 @@ type SPModel struct {
 	SupportPrivateKey  bool   `json:"support_private_key"`
 	SupportEntityId    bool   `json:"support_entity_id"`
 	EnableIdpInitiated bool   `json:"enable_idp_initiated"`
+	EntityId           string `json:"entity_id"`
 }
 
 type RoleModel struct {
-	Option string `json:"option"`
+	Option  string `json:"option"`
+	Details DetailsModel
 }
 
-type detailsModel struct {
+type DetailsModel struct {
 	Default int `json:"default"`
 }
 

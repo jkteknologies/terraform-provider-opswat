@@ -321,7 +321,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetWorkflow(int(plan.ID.ValueInt64()))
+	result, err := r.client.GetDir(int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -331,8 +331,40 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	plan = dirModel{
-		ID: types.Int64Value(int64(result.Id)),
-	}}
+		ID:               types.Int64Value(int64(result.ID)),
+		Type:             types.StringValue(result.Type),
+		Enabled:          types.BoolValue(result.Enabled),
+		Name:             types.StringValue(result.Name),
+		UserIdentifiedBy: types.StringValue(result.UserIdentifiedBy),
+		Sp: spModel{
+			LoginUrl:           types.StringValue(result.Sp.LoginUrl),
+			SupportLogoutUrl:   types.BoolValue(result.Sp.SupportLogoutUrl),
+			SupportPrivateKey:  types.BoolValue(result.Sp.SupportPrivateKey),
+			EnableIdpInitiated: types.BoolValue(result.Sp.EnableIdpInitiated),
+			SupportEntityId:    types.BoolValue(result.Sp.SupportEntityId),
+			EntityId:           types.StringValue(result.Sp.EntityId),
+		},
+		Role: roleModel{
+			Option: types.StringValue(result.Role.Option),
+			Details: detailsModel{
+				Default: types.Int64Value(int64(result.Role.Details.Default)),
+			},
+		},
+		Version: types.StringValue(result.Version),
+		Idp: idpModel{
+			AuthnRequestSigned: types.BoolValue(result.Idp.AuthnRequestSigned),
+			EntityId:           types.StringValue(result.Idp.EntityId),
+			LoginMethod: loginMethodModel{
+				Post:     types.StringValue(result.Idp.LoginMethod.Post),
+				Redirect: types.StringValue(result.Idp.LoginMethod.Redirect),
+			},
+			LogoutMethod: logoutMethodModel{
+				Redirect: types.StringValue(result.Idp.LogoutMethod.Redirect),
+			},
+			ValidUntil: types.StringValue(result.Idp.ValidUntil),
+			X509Cert:   types.StringValue(result.Idp.X509Cert),
+		},
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -343,21 +375,21 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *Dir) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	//// Retrieve values from plan
-	//var state dirModel
-	//diags := req.State.Get(ctx, &state)
-	//resp.Diagnostics.Append(diags...)
-	//if resp.Diagnostics.HasError() {
-	//	return
-	//}
-	//
-	//// Update existing dir based on ID
-	//err := r.client.DeleteDir(int(state.ID.ValueInt64()))
-	//if err != nil {
-	//	resp.Diagnostics.AddError(
-	//		"Error Delete OPSWAT dir",
-	//		"Could not update dir, unexpected error: "+err.Error(),
-	//	)
-	//	return
-	//}
+	// Retrieve values from plan
+	var state dirModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update existing dir based on ID
+	err := r.client.DeleteDir(int(state.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Delete OPSWAT dir",
+			"Could not update dir, unexpected error: "+err.Error(),
+		)
+		return
+	}
 }

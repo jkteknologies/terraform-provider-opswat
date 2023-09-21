@@ -95,7 +95,7 @@ func (c *Client) CreateDir(userDirectory UserDirectory) (*UserDirectory, error) 
 }
 
 // DeleteUserDirectory - Delete userdirectory
-func (c *Client) DeleteUserDirectory(dirID int) error {
+func (c *Client) DeleteDir(dirID int) error {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirID), nil)
 	if err != nil {
