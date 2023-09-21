@@ -103,6 +103,7 @@ type ResultAllowed struct {
 
 // dir API /admin/userdirectory
 type UserDirectory struct {
+	ID               int    `json:"id,omitempty"`
 	Type             string `json:"type"`
 	Enabled          bool   `json:"enabled"`
 	Name             string `json:"name"`
