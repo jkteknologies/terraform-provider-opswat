@@ -10,6 +10,7 @@ import (
 	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
+	"unicode"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -318,7 +319,6 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 		ScanAllowed:                          append(workflow.ScanAllowed),
 		UserAgents:                           append(workflow.UserAgents),
-		ResultAllowed:                        []ResultAllowedModel{},
 		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
@@ -345,10 +345,18 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	//spew.Dump(workflowState)
 
 	for _, resultsallowed := range workflow.ResultAllowed {
-		state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
-			Role:       types.Int64Value(int64(resultsallowed.Role)),
-			Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
-		})
+		// Opswat is using '#' symbol as All roles marker
+		if !unicode.IsDigit(rune(resultsallowed.Role)) {
+			state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
+				Role:       types.Int64Value(int64(resultsallowed.Role)),
+				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
+			})
+		} else {
+			state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
+				Role:       types.Int64Value(int64(0)),
+				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
+			})
+		}
 	}
 
 	//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{

@@ -48,7 +48,7 @@ func (c *Client) GetWorkflow(workflowID int) (*Workflow, error) {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/rule", c.HostURL))
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/rule/%d", c.HostURL, workflowID))
 
 	body, err := c.doRequest(req)
 
@@ -76,6 +76,7 @@ func (c *Client) UpdateWorkflow(workflowID int, workflow Workflow) (*Workflow, e
 	preparedJson, err := json.Marshal(workflow)
 
 	fmt.Println("----------- REQUEST -------------")
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/rule/%d", c.HostURL, workflowID))
 	fmt.Println(string(preparedJson), err)
 
 	ctx := context.TODO()
