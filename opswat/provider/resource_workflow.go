@@ -318,6 +318,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 		ScanAllowed:                          append(workflow.ScanAllowed),
 		UserAgents:                           append(workflow.UserAgents),
+		ResultAllowed:                        []ResultAllowedModel{},
 		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
