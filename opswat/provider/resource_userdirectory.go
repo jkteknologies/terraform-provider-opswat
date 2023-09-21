@@ -34,34 +34,46 @@ type dirModel struct {
 	Enabled          types.Bool   `tfsdk:"enabled"`
 	Name             types.String `tfsdk:"name"`
 	UserIdentifiedBy types.String `tfsdk:"user_identified_by"`
-	Sp               struct {
-		LoginUrl           types.String `tfsdk:"login_url"`
-		SupportLogoutUrl   types.Bool   `tfsdk:"support_logout_url"`
-		SupportPrivateKey  types.Bool   `tfsdk:"support_private_key"`
-		SupportEntityId    types.Bool   `tfsdk:"support_entity_id"`
-		EnableIdpInitiated types.Bool   `tfsdk:"enable_idp_initiated"`
-		EntityId           types.String `tfsdk:"entity_id"`
-	} `tfsdk:"sp"`
-	Role struct {
-		Option  types.String `tfsdk:"option"`
-		Details struct {
-			Default types.Int64 `tfsdk:"default"`
-		} `tfsdk:"details"`
-	} `json:"role"`
-	Version types.String `tfsdk:"version"`
-	Idp     struct {
-		AuthnRequestSigned types.Bool   `tfsdk:"authn_request_signed"`
-		EntityId           types.String `tfsdk:"entity_id"`
-		LoginMethod        struct {
-			Post     types.String `tfsdk:"post"`
-			Redirect types.String `tfsdk:"redirect"`
-		} `tfsdk:"login_method"`
-		LogoutMethod struct {
-			Redirect types.String `tfsdk:"redirect"`
-		} `json:"logout_method"`
-		ValidUntil types.String `tfsdk:"valid_until"`
-		X509Cert   types.String `tfsdk:"x509_cert"`
-	} `tfsdk:"idp"`
+	Sp               spModel
+	Role             roleModel
+	Version          types.String `tfsdk:"version"`
+	Idp              idpModel
+}
+
+type spModel struct {
+	LoginUrl           types.String `tfsdk:"login_url"`
+	SupportLogoutUrl   types.Bool   `tfsdk:"support_logout_url"`
+	SupportPrivateKey  types.Bool   `tfsdk:"support_private_key"`
+	SupportEntityId    types.Bool   `tfsdk:"support_entity_id"`
+	EnableIdpInitiated types.Bool   `tfsdk:"enable_idp_initiated"`
+	EntityId           types.String `tfsdk:"entity_id"`
+}
+
+type roleModel struct {
+	Option  types.String `tfsdk:"option"`
+	Details detailsModel
+}
+
+type detailsModel struct {
+	Default types.Int64 `tfsdk:"default"`
+}
+
+type idpModel struct {
+	AuthnRequestSigned types.Bool   `tfsdk:"authn_request_signed"`
+	EntityId           types.String `tfsdk:"entity_id"`
+	LoginMethod        loginMethodModel
+	LogoutMethod       logoutMethodModel
+	ValidUntil         types.String `tfsdk:"valid_until"`
+	X509Cert           types.String `tfsdk:"x509_cert"`
+}
+
+type loginMethodModel struct {
+	Post     types.String `tfsdk:"post"`
+	Redirect types.String `tfsdk:"redirect"`
+}
+
+type logoutMethodModel struct {
+	Redirect types.String `tfsdk:"redirect"`
 }
 
 // Metadata returns the resource type name.
@@ -226,34 +238,42 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 
 // Read resource information.
 func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	//// Get current state
-	//var state dirModel
-	//diags := req.State.Get(ctx, &state)
-	//resp.Diagnostics.Append(diags...)
-	//if resp.Diagnostics.HasError() {
-	//	return
-	//}
-	//
-	//// Get refreshed order value from OPSWAT
-	//dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
-	//if err != nil {
-	//	resp.Diagnostics.AddError(
-	//		"Error Reading OPSWAT dir",
-	//		"Could not read OPSWAT Scan agent dir count "+err.Error(),
-	//	)
-	//	return
-	//}
-	//
-	//state = dirModel{
-	//
-	//	}}
-	//
-	//// Set refreshed state
-	////diags = resp.State.Set(ctx, &state)
-	////resp.Diagnostics.Append(diags...)
-	////if resp.Diagnostics.HasError() {
-	////	return
-	////}
+	// Get current state
+	var state dirModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get refreshed order value from OPSWAT
+	dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading OPSWAT dir",
+			"Could not read OPSWAT Scan agent dir count "+err.Error(),
+		)
+		return
+	}
+
+	state = dirModel{
+		ID:               types.Int64Value(int64(dir.ID)),
+		Type:             types.StringValue(dir.Type),
+		Enabled:          types.BoolValue(dir.Enabled),
+		Name:             types.StringValue(dir.Name),
+		UserIdentifiedBy: types.StringValue(dir.UserIdentifiedBy),
+		Sp:               spModel{},
+		Role:             roleModel{},
+		Version:          types.StringValue(dir.Version),
+		Idp:              idpModel{},
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
