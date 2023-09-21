@@ -220,7 +220,7 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 	result, err := r.client.CreateDir(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Creating OPSWAT dir",
+			"Error Creating OPSWAT user directory",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
@@ -250,8 +250,8 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 	dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT dir",
-			"Could not read OPSWAT Scan agent dir count "+err.Error(),
+			"Error Reading OPSWAT user directory",
+			"Could not read OPSWAT user directory "+err.Error(),
 		)
 		return
 	}
@@ -387,8 +387,8 @@ func (r *Dir) Delete(ctx context.Context, req resource.DeleteRequest, resp *reso
 	err := r.client.DeleteDir(int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Delete OPSWAT dir",
-			"Could not update dir, unexpected error: "+err.Error(),
+			"Error Delete OPSWAT user directory",
+			"Could not update user directory, unexpected error: "+err.Error(),
 		)
 		return
 	}

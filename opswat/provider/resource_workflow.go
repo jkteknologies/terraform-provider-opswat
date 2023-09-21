@@ -64,7 +64,7 @@ func (r *Workflow) Metadata(_ context.Context, req resource.MetadataRequest, res
 // Schema defines the schema for the resource.
 func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Scan agent workflow resource.",
+		Description: "Scan workflow resource.",
 		Attributes: map[string]schema.Attribute{
 			"allow_cert": schema.BoolAttribute{
 				Description: "Generate batch signature with certificate - Use certificate to generate batch signature flag.",
@@ -295,7 +295,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
-			"Could not read OPSWAT Scan agent workflow count "+err.Error(),
+			"Could not read OPSWAT workflow "+err.Error(),
 		)
 		return
 	}
