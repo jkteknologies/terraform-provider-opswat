@@ -16,7 +16,7 @@ func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/userdirectory", c.HostURL))
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId))
 
 	body, err := c.doRequest(req)
 
@@ -36,14 +36,14 @@ func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
 }
 
 // UpdateDir - Update global sync scan timeout
-func (c *Client) UpdateDir(timeout int) (*UserDirectory, error) {
-	timeoutJson := map[string]int{"timeout": timeout}
-	preparedJson, err := json.Marshal(timeoutJson)
+func (c *Client) UpdateDir(dirId int, userDirectory UserDirectory) (*UserDirectory, error) {
+
+	preparedJson, err := json.Marshal(userDirectory)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), strings.NewReader(string(preparedJson)))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
