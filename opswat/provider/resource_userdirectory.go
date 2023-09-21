@@ -288,7 +288,17 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	// Generate API request body from plan
-	json := opswatClient.UserDirectory{}
+	json := opswatClient.UserDirectory{
+		ID:               int(plan.ID.ValueInt64()),
+		Type:             plan.Type.ValueString(),
+		Enabled:          plan.Enabled.ValueBool(),
+		Name:             plan.Name.ValueString(),
+		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
+		Sp:               opswatClient.SPModel{},
+		Role:             opswatClient.RoleModel{},
+		Version:          plan.Version.ValueString(),
+		Idp:              opswatClient.IDPModel{},
+	}
 
 	// Update existing dir based on ID
 	_, err := r.client.UpdateDir(int(plan.ID.ValueInt64()), json)
@@ -301,7 +311,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetDir(int(plan.ID.ValueInt64()))
+	_, err = r.client.GetDir(int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT dir",
@@ -310,55 +320,10 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		return
 	}
 
-	plan = dirModel{
-		AllowCert:                            types.BoolValue(result.AllowCert),
-		AllowCertCert:                        types.StringValue(result.AllowCertCert),
-		AllowCertCertValidity:                types.Int64Value(int64(result.AllowCertCertValidity)),
-		AllowLocalFiles:                      types.BoolValue(result.AllowLocalFiles),
-		AllowLocalFilesWhiteList:             types.BoolValue(result.AllowLocalFilesWhiteList),
-		AllowLocalFilesLocalPaths:            append(result.AllowLocalFilesLocalPaths),
-		Description:                          types.StringValue(result.Description),
-		ID:                                   types.Int64Value(int64(result.Id)),
-		IncludeWebhookSignature:              types.BoolValue(result.IncludeWebhookSignature),
-		IncludeWebhookSignatureCertificateID: types.Int64Value(int64(result.IncludeWebhookSignatureWebhookCertificateId)),
-		LastModified:                         types.Int64Value(int64(result.LastModified)),
-		Mutable:                              types.BoolValue(result.Mutable),
-		Name:                                 types.StringValue(result.Name),
-		DirID:                                types.Int64Value(int64(result.DirId)),
-		ZoneID:                               types.Int64Value(int64(result.ZoneId)),
-		ScanAllowed:                          append(result.ScanAllowed),
-		UserAgents:                           append(result.UserAgents),
-		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(dir.PrefHashes.DSADVANCEDSETTINGHASH)},
-		OptionValues: OptionValuesModel{
-			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(result.OptionValues.ArchiveHandlingMaxNumberFiles)),
-			ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(result.OptionValues.ArchiveHandlingMaxRecursionLevel)),
-			ArchiveHandlingMaxSizeFiles:             types.Int64Value(int64(result.OptionValues.ArchiveHandlingMaxSizeFiles)),
-			ArchiveHandlingTimeout:                  types.Int64Value(int64(result.OptionValues.ArchiveHandlingTimeout)),
-			FiletypeAnalysisTimeout:                 types.Int64Value(int64(result.OptionValues.FiletypeAnalysisTimeout)),
-			ProcessInfoGlobalTimeout:                types.BoolValue(result.OptionValues.ProcessInfoGlobalTimeout),
-			ProcessInfoGlobalTimeoutValue:           types.Int64Value(int64(result.OptionValues.ProcessInfoGlobalTimeoutValue)),
-			ProcessInfoMaxDownloadSize:              types.Int64Value(int64(result.OptionValues.ProcessInfoMaxDownloadSize)),
-			ProcessInfoMaxFileSize:                  types.Int64Value(int64(result.OptionValues.ProcessInfoMaxFileSize)),
-			ProcessInfoQuarantine:                   types.BoolValue(result.OptionValues.ProcessInfoQuarantine),
-			ProcessInfoSkipHash:                     types.BoolValue(result.OptionValues.ProcessInfoSkipHash),
-			ProcessInfoSkipProcessingFastSymlink:    types.BoolValue(result.OptionValues.ProcessInfoSkipProcessingFastSymlink),
-			ProcessInfoDirPriority:                  types.Int64Value(int64(result.OptionValues.ProcessInfoDirPriority)),
-			ScanFilescanCheckAvEngine:               types.BoolValue(result.OptionValues.ScanFilescanCheckAvEngine),
-			ScanFilescanDownloadTimeout:             types.Int64Value(int64(result.OptionValues.ScanFilescanDownloadTimeout)),
-			ScanFilescanGlobalScanTimeout:           types.Int64Value(int64(result.OptionValues.ScanFilescanGlobalScanTimeout)),
-			ScanFilescanPerEngineScanTimeout:        types.Int64Value(int64(result.OptionValues.ScanFilescanPerEngineScanTimeout)),
-			VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(result.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
-		}}
+	plan = dirModel{}
 
 	//fmt.Println("PARSED WORKFLOWS")
 	//spew.Dump(dirState)
-
-	for _, resultsallowed := range result.ResultAllowed {
-		plan.ResultAllowed = append(plan.ResultAllowed, ResultAllowedModel{
-			Role:       types.Int64Value(int64(resultsallowed.Role)),
-			Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
-		})
-	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
