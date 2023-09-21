@@ -320,10 +320,19 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		return
 	}
 
-	plan = dirModel{}
+	// Fetch updated items
+	result, err := r.client.GetWorkflow(int(plan.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading OPSWAT workflow",
+			"Could not read OPSWAT workflow "+err.Error(),
+		)
+		return
+	}
 
-	//fmt.Println("PARSED WORKFLOWS")
-	//spew.Dump(dirState)
+	plan = dirModel{
+		ID: types.Int64Value(int64(result.Id)),
+	}}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
