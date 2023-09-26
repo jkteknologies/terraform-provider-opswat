@@ -29,34 +29,6 @@ type Workflow struct {
 	client *opswatClient.Client
 }
 
-// ResultAllowModel test
-type ResultAllowedModel struct {
-	Role       types.Int64 `tfsdk:"role"`
-	Visibility types.Int64 `tfsdk:"visibility"`
-}
-
-// OptionValues
-type OptionValuesModel struct {
-	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
-	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
-	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
-	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_handling_timeout"`
-	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
-	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
-	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
-	ProcessInfoMaxDownloadSize              types.Int64 `tfsdk:"process_info_max_download_size"`
-	ProcessInfoMaxFileSize                  types.Int64 `tfsdk:"process_info_max_file_size"`
-	ProcessInfoQuarantine                   types.Bool  `tfsdk:"process_info_quarantine"`
-	ProcessInfoSkipHash                     types.Bool  `tfsdk:"process_info_skip_hash"`
-	ProcessInfoSkipProcessingFastSymlink    types.Bool  `tfsdk:"process_info_skip_processing_fast_symlink"`
-	ProcessInfoWorkflowPriority             types.Int64 `tfsdk:"process_info_workflow_priority"`
-	ScanFilescanCheckAvEngine               types.Bool  `tfsdk:"scan_filescan_check_av_engine"`
-	ScanFilescanDownloadTimeout             types.Int64 `tfsdk:"scan_filescan_download_timeout"`
-	ScanFilescanGlobalScanTimeout           types.Int64 `tfsdk:"scan_filescan_global_scan_timeout"`
-	ScanFilescanPerEngineScanTimeout        types.Int64 `tfsdk:"scan_filescan_per_engine_scan_timeout"`
-	VulFilescanTimeoutVulnerabilityScanning types.Int64 `tfsdk:"vul_filescan_timeout_vulnerability_scanning"`
-}
-
 // Metadata returns the resource type name.
 func (r *Workflow) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_workflow"

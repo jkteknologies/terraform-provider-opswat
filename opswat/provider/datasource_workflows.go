@@ -12,27 +12,27 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &Workflows{}
-	_ datasource.DataSourceWithConfigure = &Workflows{}
+	_ datasource.DataSource              = &workflows{}
+	_ datasource.DataSourceWithConfigure = &workflows{}
 )
 
 // NewGlobalWorkflows is a helper function to simplify the provider implementation.
-func NewWorkflows() datasource.DataSource {
-	return &Workflows{}
+func newWorkflows() datasource.DataSource {
+	return &workflows{}
 }
 
-// Workflows is the data source implementation.
-type Workflows struct {
+// workflows is the data source implementation.
+type workflows struct {
 	client *opswatClient.Client
 }
 
 // Metadata returns the data source type name.
-func (d *Workflows) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *workflows) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_workflows"
 }
 
 // Schema defines the schema for the data source.
-func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Global workflows datasource.",
 		Attributes: map[string]schema.Attribute{
@@ -155,7 +155,7 @@ func (d *Workflows) Schema(_ context.Context, _ datasource.SchemaRequest, resp *
 	}
 }
 
-func (d *Workflows) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *workflows) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -173,7 +173,7 @@ func (d *Workflows) Configure(_ context.Context, req datasource.ConfigureRequest
 	d.client = client
 }
 
-type workflowsDataSourceModel struct {
+type workflowsModel struct {
 	Workflows []workflowModel `tfsdk:"workflows"`
 }
 
@@ -199,9 +199,37 @@ type workflowModel struct {
 	LastModified                         types.Int64          `tfsdk:"last_modified"`
 }
 
+// ResultAllowModel test
+type ResultAllowedModel struct {
+	Role       types.Int64 `tfsdk:"role"`
+	Visibility types.Int64 `tfsdk:"visibility"`
+}
+
+// OptionValues
+type OptionValuesModel struct {
+	ArchiveHandlingMaxNumberFiles           types.Int64 `tfsdk:"archive_handling_max_number_files"`
+	ArchiveHandlingMaxRecursionLevel        types.Int64 `tfsdk:"archive_handling_max_recursion_level"`
+	ArchiveHandlingMaxSizeFiles             types.Int64 `tfsdk:"archive_handling_max_size_files"`
+	ArchiveHandlingTimeout                  types.Int64 `tfsdk:"archive_handling_timeout"`
+	FiletypeAnalysisTimeout                 types.Int64 `tfsdk:"filetype_analysis_timeout"`
+	ProcessInfoGlobalTimeout                types.Bool  `tfsdk:"process_info_global_timeout"`
+	ProcessInfoGlobalTimeoutValue           types.Int64 `tfsdk:"process_info_global_timeout_value"`
+	ProcessInfoMaxDownloadSize              types.Int64 `tfsdk:"process_info_max_download_size"`
+	ProcessInfoMaxFileSize                  types.Int64 `tfsdk:"process_info_max_file_size"`
+	ProcessInfoQuarantine                   types.Bool  `tfsdk:"process_info_quarantine"`
+	ProcessInfoSkipHash                     types.Bool  `tfsdk:"process_info_skip_hash"`
+	ProcessInfoSkipProcessingFastSymlink    types.Bool  `tfsdk:"process_info_skip_processing_fast_symlink"`
+	ProcessInfoWorkflowPriority             types.Int64 `tfsdk:"process_info_workflow_priority"`
+	ScanFilescanCheckAvEngine               types.Bool  `tfsdk:"scan_filescan_check_av_engine"`
+	ScanFilescanDownloadTimeout             types.Int64 `tfsdk:"scan_filescan_download_timeout"`
+	ScanFilescanGlobalScanTimeout           types.Int64 `tfsdk:"scan_filescan_global_scan_timeout"`
+	ScanFilescanPerEngineScanTimeout        types.Int64 `tfsdk:"scan_filescan_per_engine_scan_timeout"`
+	VulFilescanTimeoutVulnerabilityScanning types.Int64 `tfsdk:"vul_filescan_timeout_vulnerability_scanning"`
+}
+
 // Read refreshes the Terraform state with the latest data.
-func (d *Workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state workflowsDataSourceModel
+func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state workflowsModel
 
 	result, err := d.client.GetWorkflows()
 	if err != nil {

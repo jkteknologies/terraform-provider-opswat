@@ -1,12 +1,45 @@
 package opswatClient
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"strings"
 )
+
+// GetDirs - Returns global sync scan timeout
+func (c *Client) GetDirs() ([]UserDirectory, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/userdirectory", c.HostURL))
+
+	body, err := c.doRequest(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []UserDirectory
+
+	err = json.Unmarshal(body, &result)
+
+	ctx := context.TODO()
+	justString := fmt.Sprint(&result)
+	tflog.Info(ctx, justString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 // GetDir - Returns global sync scan timeout
 func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
@@ -36,9 +69,9 @@ func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
 }
 
 // UpdateDir - Update global sync scan timeout
-func (c *Client) UpdateDir(dirId int, userDirectory UserDirectory) (*UserDirectory, error) {
+func (c *Client) UpdateDir(dirId int, userDir UserDirectory) (*UserDirectory, error) {
 
-	preparedJson, err := json.Marshal(userDirectory)
+	preparedJson, err := json.Marshal(userDir)
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +99,8 @@ func (c *Client) UpdateDir(dirId int, userDirectory UserDirectory) (*UserDirecto
 }
 
 // CreateDir - Creates global sync scan timeout
-func (c *Client) CreateDir(userDirectory UserDirectory) (*UserDirectory, error) {
-	preparedJson, err := json.Marshal(userDirectory)
+func (c *Client) CreateDir(userDir UserDirectory) (*UserDirectory, error) {
+	preparedJson, err := json.Marshal(userDir)
 	if err != nil {
 		return nil, err
 	}

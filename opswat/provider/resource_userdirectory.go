@@ -3,7 +3,6 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -26,54 +25,6 @@ func NewDir() resource.Resource {
 // Dir is the resource implementation.
 type Dir struct {
 	client *opswatClient.Client
-}
-
-type dirModel struct {
-	ID               types.Int64  `tfsdk:"id"`
-	Type             types.String `tfsdk:"type"`
-	Enabled          types.Bool   `tfsdk:"enabled"`
-	Name             types.String `tfsdk:"name"`
-	UserIdentifiedBy types.String `tfsdk:"user_identified_by"`
-	Sp               spModel
-	Role             roleModel
-	Version          types.String `tfsdk:"version"`
-	Idp              idpModel
-}
-
-type spModel struct {
-	LoginUrl           types.String `tfsdk:"login_url"`
-	SupportLogoutUrl   types.Bool   `tfsdk:"support_logout_url"`
-	SupportPrivateKey  types.Bool   `tfsdk:"support_private_key"`
-	SupportEntityId    types.Bool   `tfsdk:"support_entity_id"`
-	EnableIdpInitiated types.Bool   `tfsdk:"enable_idp_initiated"`
-	EntityId           types.String `tfsdk:"entity_id"`
-}
-
-type roleModel struct {
-	Option  types.String `tfsdk:"option"`
-	Details detailsModel
-}
-
-type detailsModel struct {
-	Default types.Int64 `tfsdk:"default"`
-}
-
-type idpModel struct {
-	AuthnRequestSigned types.Bool   `tfsdk:"authn_request_signed"`
-	EntityId           types.String `tfsdk:"entity_id"`
-	LoginMethod        loginMethodModel
-	LogoutMethod       logoutMethodModel
-	ValidUntil         types.String `tfsdk:"valid_until"`
-	X509Cert           types.String `tfsdk:"x509_cert"`
-}
-
-type loginMethodModel struct {
-	Post     types.String `tfsdk:"post"`
-	Redirect types.String `tfsdk:"redirect"`
-}
-
-type logoutMethodModel struct {
-	Redirect types.String `tfsdk:"redirect"`
 }
 
 // Metadata returns the resource type name.
@@ -107,7 +58,7 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 			},
 			"useridentifiedby": schema.StringAttribute{
 				Description: "User name alias via claims under profile scope",
-				Required:    true,
+				Optional:    true,
 			},
 			"sp": schema.MapNestedAttribute{
 				Required: true,
@@ -134,7 +85,7 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 					},
 				},
 			},
-			"role": schema.MapNestedAttribute{
+			/*"role": schema.MapNestedAttribute{
 				Required: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -149,12 +100,12 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 						},
 					},
 				},
-			},
+			},*/
 			"version": schema.StringAttribute{
 				Description: "Version number",
 				Required:    true,
 			},
-			"idp": schema.MapNestedAttribute{
+			/*"idp": schema.MapNestedAttribute{
 				Required: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -179,7 +130,7 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 						},
 					},
 				},
-			},
+			},-*/
 		},
 	}
 }
@@ -262,10 +213,10 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 		Enabled:          types.BoolValue(dir.Enabled),
 		Name:             types.StringValue(dir.Name),
 		UserIdentifiedBy: types.StringValue(dir.UserIdentifiedBy),
-		Sp:               spModel{},
-		Role:             roleModel{},
-		Version:          types.StringValue(dir.Version),
-		Idp:              idpModel{},
+		Sp:               SPModel{},
+		//Role:             RoleModel{},
+		Version: types.StringValue(dir.Version),
+		//Idp:              IDPModel{},
 	}
 
 	// Set refreshed state
@@ -294,10 +245,10 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		Enabled:          plan.Enabled.ValueBool(),
 		Name:             plan.Name.ValueString(),
 		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
-		Sp:               opswatClient.SPModel{},
+		Sp:               opswatClient.SpModel{},
 		Role:             opswatClient.RoleModel{},
 		Version:          plan.Version.ValueString(),
-		Idp:              opswatClient.IDPModel{},
+		Idp:              opswatClient.IdpModel{},
 	}
 
 	// Update existing dir based on ID
@@ -306,16 +257,6 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT dir",
 			"Could not update dir, unexpected error: "+err.Error(),
-		)
-		return
-	}
-
-	// Fetch updated items
-	_, err = r.client.GetDir(int(plan.ID.ValueInt64()))
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT dir",
-			"Could not read OPSWAT dir "+err.Error(),
 		)
 		return
 	}
@@ -336,7 +277,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		Enabled:          types.BoolValue(result.Enabled),
 		Name:             types.StringValue(result.Name),
 		UserIdentifiedBy: types.StringValue(result.UserIdentifiedBy),
-		Sp: spModel{
+		Sp: SPModel{
 			LoginUrl:           types.StringValue(result.Sp.LoginUrl),
 			SupportLogoutUrl:   types.BoolValue(result.Sp.SupportLogoutUrl),
 			SupportPrivateKey:  types.BoolValue(result.Sp.SupportPrivateKey),
@@ -344,27 +285,33 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 			SupportEntityId:    types.BoolValue(result.Sp.SupportEntityId),
 			EntityId:           types.StringValue(result.Sp.EntityId),
 		},
-		Role: roleModel{
-			Option: types.StringValue(result.Role.Option),
-			Details: detailsModel{
-				Default: types.Int64Value(int64(result.Role.Details.Default)),
-			},
-		},
+		//Role:    RoleModel{},
 		Version: types.StringValue(result.Version),
-		Idp: idpModel{
+		/*Idp: IDPModel{
 			AuthnRequestSigned: types.BoolValue(result.Idp.AuthnRequestSigned),
 			EntityId:           types.StringValue(result.Idp.EntityId),
-			LoginMethod: loginMethodModel{
+			LoginMethod: LoginMethodModel{
 				Post:     types.StringValue(result.Idp.LoginMethod.Post),
 				Redirect: types.StringValue(result.Idp.LoginMethod.Redirect),
 			},
-			LogoutMethod: logoutMethodModel{
+			LogoutMethod: LogoutMethodModel{
 				Redirect: types.StringValue(result.Idp.LogoutMethod.Redirect),
 			},
 			ValidUntil: types.StringValue(result.Idp.ValidUntil),
 			X509Cert:   types.StringValue(result.Idp.X509Cert),
-		},
+		},*/
 	}
+
+	/*for _, details := range result.Role.Details {
+		plan.Role.Details = append(plan.Role.Details, DetailsModel{
+			Key:    types.StringValue(details.Key),
+			Values: []ValuesModel{},
+		})
+	}*/
+
+	//for _, detailsValues := range result.Role.Details {
+	//	plan.Role.Details.Values = append(plan.Role.Details, DetailsModel{})
+	//}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

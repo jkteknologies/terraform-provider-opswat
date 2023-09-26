@@ -8,6 +8,9 @@ import (
 	"flag"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"terraform-provider-opswat/opswat/provider"
 )
@@ -47,7 +50,20 @@ func main() {
 		Debug:   debug,
 	}
 
-	err := providerserver.Serve(context.Background(), opswatProvider.New(version), opts)
+	// Create a context that will be canceled when a termination signal is received
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // Ensure cancellation when done
+
+	// Set up a signal handler to capture termination signals and cancel the context
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-sigCh
+		// Received a termination signal; cancel the context
+		cancel()
+	}()
+
+	err := providerserver.Serve(ctx, opswatProvider.New(version), opts)
 
 	if err != nil {
 		log.Fatal(err.Error())
