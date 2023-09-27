@@ -232,12 +232,12 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 		})
 	}
 
-	// Update existing order
+	// Add new workflow
 	workflow, err := r.client.CreateWorkflow(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT workflow",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not add new workflow, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -263,7 +263,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed workflow config from OPSWAT
 	workflow, err := r.client.GetWorkflow(int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(

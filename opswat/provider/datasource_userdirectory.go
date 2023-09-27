@@ -28,150 +28,8 @@ type userDirectory struct {
 	client *opswatClient.Client
 }
 
-// Metadata returns the data source type name.
-func (d *userDirectory) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_userdirectory"
-}
-
-// Schema defines the schema for the data source.
-func (d *userDirectory) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"dirs": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.Int64Attribute{
-							Description: "Userdirectory id.",
-							Computed:    true,
-						},
-						"type": schema.StringAttribute{
-							Description: "Local, AD, LDAP, OIDC or SAML",
-							Computed:    true,
-						},
-						"enabled": schema.BoolAttribute{
-							Description: "Enabled flag",
-							Computed:    true,
-						},
-						"name": schema.StringAttribute{
-							Description: "Directory name",
-							Computed:    true,
-						},
-						"user_identified_by": schema.StringAttribute{
-							Description: "User name alias via claims under profile scope",
-							Computed:    true,
-						},
-						"sp": schema.ObjectAttribute{
-							Computed: true,
-							AttributeTypes: map[string]attr.Type{
-								"login_url":            types.StringType,
-								"support_logout_url":   types.BoolType,
-								"support_private_key":  types.BoolType,
-								"support_entity_id":    types.BoolType,
-								"enable_idp_initiated": types.BoolType,
-								"entity_id":            types.StringType,
-							},
-						},
-						/*"role": schema.MapNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"option": schema.StringAttribute{
-										Computed: true,
-									},
-									"details": schema.ListNestedAttribute{
-										Computed: true,
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{
-												"key": schema.StringAttribute{
-													Computed: true,
-												},
-												"values": schema.ListNestedAttribute{
-													Computed: true,
-													NestedObject: schema.NestedAttributeObject{
-														Attributes: map[string]schema.Attribute{
-															"condition": schema.StringAttribute{
-																Computed: true,
-															},
-															"role_ids": schema.ListAttribute{
-																ElementType: types.StringType,
-																Computed:    true,
-															},
-															"type": schema.StringAttribute{
-																Computed: true,
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},*/
-						"version": schema.StringAttribute{
-							Description: "Version number",
-							Computed:    true,
-						},
-						/*"idp": schema.MapNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"authn_request_signed": schema.BoolAttribute{
-										Computed: true,
-									},
-									"entity_id": schema.StringAttribute{
-										Computed: true,
-									},
-									"login_method": schema.ObjectAttribute{
-										Computed: true,
-										AttributeTypes: map[string]attr.Type{
-											"post":     types.StringType,
-											"redirect": types.StringType,
-										},
-									},
-									"logout_method": schema.ObjectAttribute{
-										Computed: true,
-										AttributeTypes: map[string]attr.Type{
-											"redirect": types.StringType,
-										},
-									},
-									"valid_until": schema.StringAttribute{
-										Computed: true,
-									},
-									"x509_cert": schema.StringAttribute{
-										Computed: true,
-									},
-								},
-							},
-						},*/
-					},
-				},
-			},
-		},
-	}
-}
-
-func (d *userDirectory) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	client, ok := req.ProviderData.(*opswatClient.Client)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *opswatClient.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	d.client = client
-}
-
 // userDirs model maps the data source schema data.
-type dirDataSourceModel struct {
+type dirModels struct {
 	Dirs []dirModel `tfsdk:"dirs"`
 }
 
@@ -182,9 +40,9 @@ type dirModel struct {
 	Name             types.String `tfsdk:"name"`
 	UserIdentifiedBy types.String `tfsdk:"user_identified_by"`
 	Sp               SPModel      `tfsdk:"sp"`
-	//Role             RoleModel    `tfsdk:"role"`
-	Version types.String `tfsdk:"version"`
-	//Idp              IDPModel     `tfsdk:"idp"`
+	Role             RoleModel    `tfsdk:"role"`
+	Version          types.String `tfsdk:"version"`
+	Idp              IDPModel     `tfsdk:"idp"`
 }
 
 type SPModel struct {
@@ -230,12 +88,150 @@ type LogoutMethodModel struct {
 	Redirect types.String `tfsdk:"redirect"`
 }
 
+// Metadata returns the data source type name.
+func (d *userDirectory) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_userdirectory"
+}
+
+// Schema defines the schema for the data source.
+func (d *userDirectory) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"dirs": schema.ListNestedAttribute{
+				Computed: true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.Int64Attribute{
+							Description: "Userdirectory id.",
+							Computed:    true,
+						},
+						"type": schema.StringAttribute{
+							Description: "Local, AD, LDAP, OIDC or SAML",
+							Computed:    true,
+						},
+						"enabled": schema.BoolAttribute{
+							Description: "Enabled flag",
+							Computed:    true,
+						},
+						"name": schema.StringAttribute{
+							Description: "Directory name",
+							Computed:    true,
+						},
+						"user_identified_by": schema.StringAttribute{
+							Description: "User name alias via claims under profile scope",
+							Computed:    true,
+						},
+						"sp": schema.ObjectAttribute{
+							Computed: true,
+							AttributeTypes: map[string]attr.Type{
+								"login_url":            types.StringType,
+								"support_logout_url":   types.BoolType,
+								"support_private_key":  types.BoolType,
+								"support_entity_id":    types.BoolType,
+								"enable_idp_initiated": types.BoolType,
+								"entity_id":            types.StringType,
+							},
+						},
+						"idp": schema.SingleNestedAttribute{
+							Computed: true,
+							Attributes: map[string]schema.Attribute{
+								"authn_request_signed": schema.BoolAttribute{
+									Computed: true,
+								},
+								"entity_id": schema.StringAttribute{
+									Computed: true,
+								},
+								"valid_until": schema.StringAttribute{
+									Computed: true,
+								},
+								"x509_cert": schema.StringAttribute{
+									Computed: true,
+								},
+								"login_method": schema.ObjectAttribute{
+									Computed: true,
+									AttributeTypes: map[string]attr.Type{
+										"post":     types.StringType,
+										"redirect": types.StringType,
+									},
+								},
+								"logout_method": schema.ObjectAttribute{
+									Computed: true,
+									AttributeTypes: map[string]attr.Type{
+										"redirect": types.StringType,
+									},
+								},
+							},
+						},
+						"version": schema.StringAttribute{
+							Description: "Version number",
+							Computed:    true,
+						},
+						"role": schema.SingleNestedAttribute{
+							Computed: true,
+							Attributes: map[string]schema.Attribute{
+								"option": schema.StringAttribute{
+									Computed: true,
+								},
+								"details": schema.ListNestedAttribute{
+									Computed: true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"key": schema.StringAttribute{
+												Computed: true,
+											},
+											"values": schema.ListNestedAttribute{
+												Computed: true,
+												NestedObject: schema.NestedAttributeObject{
+													Attributes: map[string]schema.Attribute{
+														"condition": schema.StringAttribute{
+															Computed: true,
+														},
+														"role_ids": schema.ListAttribute{
+															ElementType: types.StringType,
+															Computed:    true,
+														},
+														"type": schema.StringAttribute{
+															Computed: true,
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func (d *userDirectory) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*opswatClient.Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *opswatClient.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
+}
+
 // Read refreshes the Terraform state with the latest data.
 func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	// Get current state
-	var state dirDataSourceModel
+	var state dirModels
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed session value from OPSWAT
 	userDirs, err := d.client.GetDirs()
 
 	tflog.Info(ctx, utils.ToString(userDirs))
@@ -264,7 +260,7 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 				EntityId:           types.StringValue(result.Sp.EntityId),
 			},
 			Version: types.StringValue(result.Version),
-			/*Idp: IDPModel{
+			Idp: IDPModel{
 				AuthnRequestSigned: types.BoolValue(result.Idp.AuthnRequestSigned),
 				EntityId:           types.StringValue(result.Idp.EntityId),
 				LoginMethod: LoginMethodModel{
@@ -276,16 +272,25 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 				},
 				ValidUntil: types.StringValue(result.Idp.ValidUntil),
 				X509Cert:   types.StringValue(result.Idp.X509Cert),
-			},*/
+			},
+			Role: RoleModel{
+				Details: []DetailsModel{},
+				Option:  types.StringValue(result.Role.Option),
+			},
 		}
 
-		/*for _, details := range result.Role.Details {
-			state.Role.Details = append(state.Role.Details, DetailsModel{
+		for n, details := range result.Role.Details {
+			dirState.Role.Details = append(dirState.Role.Details, DetailsModel{
 				Key:    types.StringValue(details.Key),
 				Values: []ValuesModel{},
 			})
 
-		}*/
+			dirState.Role.Details[n].Values = append(dirState.Role.Details[n].Values, ValuesModel{
+				Condition: details.Values[0].Condition,
+				RoleIds:   details.Values[0].RoleIds,
+				Type:      details.Values[0].Type,
+			})
+		}
 
 		state.Dirs = append(state.Dirs, dirState)
 

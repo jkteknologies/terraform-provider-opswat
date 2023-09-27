@@ -99,17 +99,17 @@ func (r *Session) Create(ctx context.Context, req resource.CreateRequest, resp *
 		SessionTimeout:         int(plan.SessionTimeout.ValueInt64()),
 	}
 
-	// Update existing order
+	// Update existing session config
 	_, err := r.client.CreateSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not update session config value, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -141,7 +141,7 @@ func (r *Session) Read(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed session value from OPSWAT
 	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -181,17 +181,17 @@ func (r *Session) Update(ctx context.Context, req resource.UpdateRequest, resp *
 		SessionTimeout:         int(plan.SessionTimeout.ValueInt64()),
 	}
 
-	// Update existing order
+	// Update existing session config
 	_, err := r.client.UpdateSession(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not update session config, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetSession()
 	if err != nil {
 		resp.Diagnostics.AddError(

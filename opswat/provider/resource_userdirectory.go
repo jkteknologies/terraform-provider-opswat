@@ -3,11 +3,14 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	"github.com/emirpasic/gods/utils"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
 )
 
@@ -35,7 +38,6 @@ func (r *Dir) Metadata(_ context.Context, req resource.MetadataRequest, resp *re
 // Schema defines the schema for the resource.
 func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Scan agent dir resource.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
 				Description: "Userdirectory id.",
@@ -56,81 +58,90 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 				Description: "Directory name",
 				Required:    true,
 			},
-			"useridentifiedby": schema.StringAttribute{
+			"user_identified_by": schema.StringAttribute{
 				Description: "User name alias via claims under profile scope",
-				Optional:    true,
+				Required:    true,
 			},
-			"sp": schema.MapNestedAttribute{
+			"sp": schema.ObjectAttribute{
 				Required: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"loginurl": schema.StringAttribute{
-							Required: true,
+				AttributeTypes: map[string]attr.Type{
+					"login_url":            types.StringType,
+					"support_logout_url":   types.BoolType,
+					"support_private_key":  types.BoolType,
+					"support_entity_id":    types.BoolType,
+					"enable_idp_initiated": types.BoolType,
+					"entity_id":            types.StringType,
+				},
+			},
+			"idp": schema.SingleNestedAttribute{
+				Required: true,
+				Attributes: map[string]schema.Attribute{
+					"authn_request_signed": schema.BoolAttribute{
+						Required: true,
+					},
+					"entity_id": schema.StringAttribute{
+						Required: true,
+					},
+					"valid_until": schema.StringAttribute{
+						Required: true,
+					},
+					"x509_cert": schema.StringAttribute{
+						Required: true,
+					},
+					"login_method": schema.ObjectAttribute{
+						Required: true,
+						AttributeTypes: map[string]attr.Type{
+							"post":     types.StringType,
+							"redirect": types.StringType,
 						},
-						"supportlogouturl": schema.BoolAttribute{
-							Required: true,
-						},
-						"supportprivatekey": schema.BoolAttribute{
-							Required: true,
-						},
-						"supportentityid": schema.BoolAttribute{
-							Required: true,
-						},
-						"enableidpinitiated": schema.BoolAttribute{
-							Required: true,
-						},
-						"entityid": schema.StringAttribute{
-							Required: true,
+					},
+					"logout_method": schema.ObjectAttribute{
+						Required: true,
+						AttributeTypes: map[string]attr.Type{
+							"redirect": types.StringType,
 						},
 					},
 				},
 			},
-			/*"role": schema.MapNestedAttribute{
-				Required: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"option": schema.StringAttribute{
-							Required: true,
-						},
-						"details": schema.ObjectAttribute{
-							Required: true,
-							AttributeTypes: map[string]attr.Type{
-								"default": types.Int64Type,
-							},
-						},
-					},
-				},
-			},*/
 			"version": schema.StringAttribute{
 				Description: "Version number",
 				Required:    true,
 			},
-			/*"idp": schema.MapNestedAttribute{
+			"role": schema.SingleNestedAttribute{
 				Required: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"authnrequestsigned": schema.BoolAttribute{
-							Required: true,
-						},
-						"entityid": schema.StringAttribute{
-							Required: true,
-						},
-						"loginmethod": schema.ObjectAttribute{
-							Required: true,
-							AttributeTypes: map[string]attr.Type{
-								"post":     types.StringType,
-								"redirect": types.StringType,
+				Attributes: map[string]schema.Attribute{
+					"option": schema.StringAttribute{
+						Required: true,
+					},
+					"details": schema.ListNestedAttribute{
+						Required: true,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"key": schema.StringAttribute{
+									Required: true,
+								},
+								"values": schema.ListNestedAttribute{
+									Required: true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"condition": schema.StringAttribute{
+												Required: true,
+											},
+											"role_ids": schema.ListAttribute{
+												ElementType: types.StringType,
+												Required:    true,
+											},
+											"type": schema.StringAttribute{
+												Required: true,
+											},
+										},
+									},
+								},
 							},
-						},
-						"validuntil": schema.StringAttribute{
-							Required: true,
-						},
-						"x509cert": schema.StringAttribute{
-							Required: true,
 						},
 					},
 				},
-			},-*/
+			},
 		},
 	}
 }
@@ -165,14 +176,57 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 	}
 
 	// Generate API request body from plan
-	json := opswatClient.UserDirectory{}
+	json := opswatClient.UserDirectory{
+		Name:             plan.Name.ValueString(),
+		Type:             plan.Type.ValueString(),
+		Enabled:          plan.Enabled.ValueBool(),
+		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
+		Sp: opswatClient.Sp{
+			LoginUrl:           plan.Sp.LoginUrl.ValueString(),
+			SupportLogoutUrl:   plan.Sp.SupportLogoutUrl.ValueBool(),
+			SupportEntityId:    plan.Sp.SupportEntityId.ValueBool(),
+			SupportPrivateKey:  plan.Sp.SupportPrivateKey.ValueBool(),
+			EnableIdpInitiated: plan.Sp.EnableIdpInitiated.ValueBool(),
+			EntityId:           plan.Sp.EntityId.ValueString(),
+		},
+		Role: opswatClient.Role{
+			Option:  plan.Role.Option.ValueString(),
+			Details: []opswatClient.Details{},
+		},
+		Idp: opswatClient.Idp{
+			AuthnRequestSigned: plan.Idp.AuthnRequestSigned.ValueBool(),
+			EntityId:           plan.Idp.EntityId.ValueString(),
+			LoginMethod: opswatClient.LoginMethod{
+				Post:     plan.Idp.LoginMethod.Post.ValueString(),
+				Redirect: plan.Idp.LoginMethod.Redirect.ValueString(),
+			},
+			LogoutMethod: opswatClient.LogoutMethod{
+				Redirect: plan.Idp.LogoutMethod.Redirect.ValueString(),
+			},
+			ValidUntil: plan.Idp.ValidUntil.ValueString(),
+			X509Cert:   plan.Idp.X509Cert.ValueString(),
+		},
+	}
 
-	// Update existing order
+	for n, details := range plan.Role.Details {
+		json.Role.Details = append(json.Role.Details, opswatClient.Details{
+			Key:    details.Key.ValueString(),
+			Values: []opswatClient.Values{},
+		})
+
+		json.Role.Details[n].Values = append(json.Role.Details[n].Values, opswatClient.Values{
+			Condition: details.Values[0].Condition,
+			RoleIds:   details.Values[0].RoleIds,
+			Type:      details.Values[0].Type,
+		})
+	}
+
+	// Update existing user directory
 	result, err := r.client.CreateDir(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user directory",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not add new user directory, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -191,18 +245,16 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
 	var state dirModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
-	// Get refreshed order value from OPSWAT
+	// Get refreshed user directory config from OPSWAT
 	dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
+
+	tflog.Info(ctx, utils.ToString(dir))
+
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading OPSWAT user directory",
-			"Could not read OPSWAT user directory "+err.Error(),
+			"Error Reading OPSWAT user directories",
+			"Could not read OPSWAT user directories "+err.Error(),
 		)
 		return
 	}
@@ -213,14 +265,49 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 		Enabled:          types.BoolValue(dir.Enabled),
 		Name:             types.StringValue(dir.Name),
 		UserIdentifiedBy: types.StringValue(dir.UserIdentifiedBy),
-		Sp:               SPModel{},
-		//Role:             RoleModel{},
+		Sp: SPModel{
+			LoginUrl:           types.StringValue(dir.Sp.LoginUrl),
+			SupportLogoutUrl:   types.BoolValue(dir.Sp.SupportLogoutUrl),
+			SupportPrivateKey:  types.BoolValue(dir.Sp.SupportPrivateKey),
+			EnableIdpInitiated: types.BoolValue(dir.Sp.EnableIdpInitiated),
+			SupportEntityId:    types.BoolValue(dir.Sp.SupportEntityId),
+			EntityId:           types.StringValue(dir.Sp.EntityId),
+		},
 		Version: types.StringValue(dir.Version),
-		//Idp:              IDPModel{},
+		Idp: IDPModel{
+			AuthnRequestSigned: types.BoolValue(dir.Idp.AuthnRequestSigned),
+			EntityId:           types.StringValue(dir.Idp.EntityId),
+			LoginMethod: LoginMethodModel{
+				Post:     types.StringValue(dir.Idp.LoginMethod.Post),
+				Redirect: types.StringValue(dir.Idp.LoginMethod.Redirect),
+			},
+			LogoutMethod: LogoutMethodModel{
+				Redirect: types.StringValue(dir.Idp.LogoutMethod.Redirect),
+			},
+			ValidUntil: types.StringValue(dir.Idp.ValidUntil),
+			X509Cert:   types.StringValue(dir.Idp.X509Cert),
+		},
+		Role: RoleModel{
+			Details: []DetailsModel{},
+			Option:  types.StringValue(dir.Role.Option),
+		},
 	}
 
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
+	for n, details := range dir.Role.Details {
+		state.Role.Details = append(state.Role.Details, DetailsModel{
+			Key:    types.StringValue(details.Key),
+			Values: []ValuesModel{},
+		})
+
+		state.Role.Details[n].Values = append(state.Role.Details[n].Values, ValuesModel{
+			Condition: details.Values[0].Condition,
+			RoleIds:   details.Values[0].RoleIds,
+			Type:      details.Values[0].Type,
+		})
+	}
+
+	// Set state
+	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -245,10 +332,10 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 		Enabled:          plan.Enabled.ValueBool(),
 		Name:             plan.Name.ValueString(),
 		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
-		Sp:               opswatClient.SpModel{},
-		Role:             opswatClient.RoleModel{},
+		Sp:               opswatClient.Sp{},
+		Role:             opswatClient.Role{},
 		Version:          plan.Version.ValueString(),
-		Idp:              opswatClient.IdpModel{},
+		Idp:              opswatClient.Idp{},
 	}
 
 	// Update existing dir based on ID

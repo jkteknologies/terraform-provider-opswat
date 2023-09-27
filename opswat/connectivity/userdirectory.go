@@ -105,7 +105,7 @@ func (c *Client) CreateDir(userDir UserDirectory) (*UserDirectory, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), strings.NewReader(string(preparedJson)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}

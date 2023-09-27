@@ -103,18 +103,18 @@ type ResultAllowed struct {
 
 // UserDirectory API /admin/userdirectory
 type UserDirectory struct {
-	ID               int       `json:"id,omitempty"`
-	Type             string    `json:"type"`
-	Enabled          bool      `json:"enabled"`
-	Name             string    `json:"name"`
-	UserIdentifiedBy string    `json:"user_identified_by"`
-	Sp               SpModel   `json:"sp"`
-	Role             RoleModel `json:"role"`
-	Version          string    `json:"version"`
-	Idp              IdpModel  `json:"idp"`
+	ID               int    `json:"id,omitempty"`
+	Type             string `json:"type"`
+	Enabled          bool   `json:"enabled"`
+	Name             string `json:"name"`
+	UserIdentifiedBy string `json:"user_identified_by"`
+	Sp               Sp     `json:"sp"`
+	Role             Role   `json:"role"`
+	Version          string `json:"version"`
+	Idp              Idp    `json:"idp"`
 }
 
-type SpModel struct {
+type Sp struct {
 	LoginUrl           string `json:"login_url"`
 	SupportLogoutUrl   bool   `json:"support_logout_url"`
 	SupportPrivateKey  bool   `json:"support_private_key"`
@@ -123,35 +123,36 @@ type SpModel struct {
 	EntityId           string `json:"entity_id"`
 }
 
-type RoleModel struct {
-	Details []detailsModel `json:"role"`
+type Role struct {
+	Option  string    `json:"option"`
+	Details []Details `json:"details"`
 }
 
-type detailsModel struct {
-	Key    string        `json:"key"`
-	Values []valuesModel `json:"values"`
+type Details struct {
+	Key    string   `json:"key"`
+	Values []Values `json:"values"`
 }
 
-type valuesModel struct {
+type Values struct {
 	Condition string   `json:"condition"`
 	RoleIds   []string `json:"role_ids"`
 	Type      string   `json:"type"`
 }
 
-type IdpModel struct {
-	AuthnRequestSigned bool              `json:"authn_request_signed"`
-	EntityId           string            `json:"entity_id"`
-	LoginMethod        loginMethodModel  `json:"loginmethod"`
-	LogoutMethod       logoutMethodModel `json:"logoutmethod"`
-	ValidUntil         string            `json:"valid_until"`
-	X509Cert           string            `json:"x509_cert"`
+type Idp struct {
+	AuthnRequestSigned bool         `json:"authn_request_signed"`
+	EntityId           string       `json:"entity_id"`
+	LoginMethod        LoginMethod  `json:"login_method"`
+	LogoutMethod       LogoutMethod `json:"logout_method"`
+	ValidUntil         string       `json:"valid_until"`
+	X509Cert           string       `json:"x509_cert"`
 }
 
-type loginMethodModel struct {
+type LoginMethod struct {
 	Post     string `json:"post"`
 	Redirect string `json:"redirect"`
 }
 
-type logoutMethodModel struct {
+type LogoutMethod struct {
 	Redirect string `json:"redirect"`
 }

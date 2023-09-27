@@ -79,8 +79,8 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	_, err := r.client.CreateGlobalSync(int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating OPSWAT Global sync Order",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Error Updating OPSWAT Global sync value",
+			"Could not update global sync, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -152,7 +152,7 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Global sync timeout",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not update lobal sync timeout value, unexpected error: "+err.Error(),
 		)
 		return
 	}

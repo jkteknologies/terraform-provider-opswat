@@ -80,17 +80,17 @@ func (r *Queue) Create(ctx context.Context, req resource.CreateRequest, resp *re
 	// Generate API request body from plan
 	queue := plan.MaxQueuePerAgent.ValueInt64()
 
-	// Update existing order
+	// Add new scan queue
 	_, err := r.client.CreateQueue(int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Scan agent queue count",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not update Scan agent queue value, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
-	// Fetch updated items from GetOrder as UpdateOrder items are not populated.
+	// Fetch updated items
 	result, err := r.client.GetQueue()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -157,7 +157,7 @@ func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *re
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Scan agent queue count",
-			"Could not update order, unexpected error: "+err.Error(),
+			"Could not update Scan agent queue value, unexpected error: "+err.Error(),
 		)
 		return
 	}
