@@ -5,6 +5,8 @@ description: OPSWAT User directories
   
 ---
 
+-> NOTE: Only SAML integration supported.
+
 ## Example Usage
 
 ```terraform

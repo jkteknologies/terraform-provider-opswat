@@ -8,7 +8,7 @@ description: OPSWAT Global sync connection timeout
 ## Example Usage
 
 ```terraform
-data "opswat_file_sync" "new" {}
+data "opswat_file_sync" "current" {}
 ```
 
 
