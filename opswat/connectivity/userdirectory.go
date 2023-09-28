@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TylerBrock/colorjson"
+	"github.com/emirpasic/gods/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"strings"
@@ -43,7 +45,7 @@ func (c *Client) GetDirs() ([]UserDirectory, error) {
 
 // GetDir - Returns global sync scan timeout
 func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId), nil)
 
 	if err != nil {
 		return nil, err
@@ -104,6 +106,13 @@ func (c *Client) CreateDir(userDir UserDirectory) (*UserDirectory, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	ctx := context.Background()
+	f := colorjson.NewFormatter()
+	f.Indent = 2
+	s, _ := f.Marshal(userDir)
+	tflog.Info(ctx, "----------- REQUEST -------------")
+	tflog.Info(ctx, utils.ToString(s))
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {

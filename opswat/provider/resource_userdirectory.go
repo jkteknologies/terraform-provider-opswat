@@ -4,13 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/emirpasic/gods/utils"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"regexp"
+	"strings"
 	opswatClient "terraform-provider-opswat/opswat/connectivity"
 )
 
@@ -57,6 +61,12 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 			"name": schema.StringAttribute{
 				Description: "Directory name",
 				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(
+						regexp.MustCompile(`^[A-Z0-9\s]+$`),
+						"Must contain only UPPERCASE alphanumeric characters",
+					),
+				},
 			},
 			"user_identified_by": schema.StringAttribute{
 				Description: "User name alias via claims under profile scope",
@@ -181,6 +191,7 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 		Type:             plan.Type.ValueString(),
 		Enabled:          plan.Enabled.ValueBool(),
 		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
+		Version:          plan.Version.ValueString(),
 		Sp: opswatClient.Sp{
 			LoginUrl:           plan.Sp.LoginUrl.ValueString(),
 			SupportLogoutUrl:   plan.Sp.SupportLogoutUrl.ValueBool(),
@@ -221,6 +232,8 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 		})
 	}
 
+	tflog.Info(ctx, utils.ToString(json))
+
 	// Update existing user directory
 	result, err := r.client.CreateDir(json)
 	if err != nil {
@@ -245,11 +258,17 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
 	var state dirModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Get refreshed user directory config from OPSWAT
 	dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
 
-	tflog.Info(ctx, utils.ToString(dir))
+	tflog.Info(ctx, utils.ToString("DIR ID FROM STATE"))
+	tflog.Info(ctx, utils.ToString(state.ID.ValueInt64()))
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -307,7 +326,7 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 	}
 
 	// Set state
-	diags := resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -319,7 +338,6 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	// Retrieve values from plan
 	var plan dirModel
 	diags := req.Plan.Get(ctx, &plan)
-
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -327,16 +345,52 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 
 	// Generate API request body from plan
 	json := opswatClient.UserDirectory{
-		ID:               int(plan.ID.ValueInt64()),
+		Name:             strings.ToUpper(plan.Name.ValueString()),
 		Type:             plan.Type.ValueString(),
 		Enabled:          plan.Enabled.ValueBool(),
-		Name:             plan.Name.ValueString(),
 		UserIdentifiedBy: plan.UserIdentifiedBy.ValueString(),
-		Sp:               opswatClient.Sp{},
-		Role:             opswatClient.Role{},
 		Version:          plan.Version.ValueString(),
-		Idp:              opswatClient.Idp{},
+		Sp: opswatClient.Sp{
+			LoginUrl:           plan.Sp.LoginUrl.ValueString(),
+			SupportLogoutUrl:   plan.Sp.SupportLogoutUrl.ValueBool(),
+			SupportEntityId:    plan.Sp.SupportEntityId.ValueBool(),
+			SupportPrivateKey:  plan.Sp.SupportPrivateKey.ValueBool(),
+			EnableIdpInitiated: plan.Sp.EnableIdpInitiated.ValueBool(),
+			EntityId:           plan.Sp.EntityId.ValueString(),
+		},
+		Role: opswatClient.Role{
+			Option:  plan.Role.Option.ValueString(),
+			Details: []opswatClient.Details{},
+		},
+		Idp: opswatClient.Idp{
+			AuthnRequestSigned: plan.Idp.AuthnRequestSigned.ValueBool(),
+			EntityId:           plan.Idp.EntityId.ValueString(),
+			LoginMethod: opswatClient.LoginMethod{
+				Post:     plan.Idp.LoginMethod.Post.ValueString(),
+				Redirect: plan.Idp.LoginMethod.Redirect.ValueString(),
+			},
+			LogoutMethod: opswatClient.LogoutMethod{
+				Redirect: plan.Idp.LogoutMethod.Redirect.ValueString(),
+			},
+			ValidUntil: plan.Idp.ValidUntil.ValueString(),
+			X509Cert:   plan.Idp.X509Cert.ValueString(),
+		},
 	}
+
+	for n, details := range plan.Role.Details {
+		json.Role.Details = append(json.Role.Details, opswatClient.Details{
+			Key:    details.Key.ValueString(),
+			Values: []opswatClient.Values{},
+		})
+
+		json.Role.Details[n].Values = append(json.Role.Details[n].Values, opswatClient.Values{
+			Condition: details.Values[0].Condition,
+			RoleIds:   details.Values[0].RoleIds,
+			Type:      details.Values[0].Type,
+		})
+	}
+
+	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing dir based on ID
 	_, err := r.client.UpdateDir(int(plan.ID.ValueInt64()), json)
@@ -349,7 +403,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetDir(int(plan.ID.ValueInt64()))
+	dir, err := r.client.GetDir(int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -359,46 +413,51 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	plan = dirModel{
-		ID:               types.Int64Value(int64(result.ID)),
-		Type:             types.StringValue(result.Type),
-		Enabled:          types.BoolValue(result.Enabled),
-		Name:             types.StringValue(result.Name),
-		UserIdentifiedBy: types.StringValue(result.UserIdentifiedBy),
+		ID:               types.Int64Value(int64(dir.ID)),
+		Type:             types.StringValue(dir.Type),
+		Enabled:          types.BoolValue(dir.Enabled),
+		Name:             types.StringValue(dir.Name),
+		UserIdentifiedBy: types.StringValue(dir.UserIdentifiedBy),
 		Sp: SPModel{
-			LoginUrl:           types.StringValue(result.Sp.LoginUrl),
-			SupportLogoutUrl:   types.BoolValue(result.Sp.SupportLogoutUrl),
-			SupportPrivateKey:  types.BoolValue(result.Sp.SupportPrivateKey),
-			EnableIdpInitiated: types.BoolValue(result.Sp.EnableIdpInitiated),
-			SupportEntityId:    types.BoolValue(result.Sp.SupportEntityId),
-			EntityId:           types.StringValue(result.Sp.EntityId),
+			LoginUrl:           types.StringValue(dir.Sp.LoginUrl),
+			SupportLogoutUrl:   types.BoolValue(dir.Sp.SupportLogoutUrl),
+			SupportPrivateKey:  types.BoolValue(dir.Sp.SupportPrivateKey),
+			EnableIdpInitiated: types.BoolValue(dir.Sp.EnableIdpInitiated),
+			SupportEntityId:    types.BoolValue(dir.Sp.SupportEntityId),
+			EntityId:           types.StringValue(dir.Sp.EntityId),
 		},
-		//Role:    RoleModel{},
-		Version: types.StringValue(result.Version),
-		/*Idp: IDPModel{
-			AuthnRequestSigned: types.BoolValue(result.Idp.AuthnRequestSigned),
-			EntityId:           types.StringValue(result.Idp.EntityId),
+		Version: types.StringValue(dir.Version),
+		Idp: IDPModel{
+			AuthnRequestSigned: types.BoolValue(dir.Idp.AuthnRequestSigned),
+			EntityId:           types.StringValue(dir.Idp.EntityId),
 			LoginMethod: LoginMethodModel{
-				Post:     types.StringValue(result.Idp.LoginMethod.Post),
-				Redirect: types.StringValue(result.Idp.LoginMethod.Redirect),
+				Post:     types.StringValue(dir.Idp.LoginMethod.Post),
+				Redirect: types.StringValue(dir.Idp.LoginMethod.Redirect),
 			},
 			LogoutMethod: LogoutMethodModel{
-				Redirect: types.StringValue(result.Idp.LogoutMethod.Redirect),
+				Redirect: types.StringValue(dir.Idp.LogoutMethod.Redirect),
 			},
-			ValidUntil: types.StringValue(result.Idp.ValidUntil),
-			X509Cert:   types.StringValue(result.Idp.X509Cert),
-		},*/
+			ValidUntil: types.StringValue(dir.Idp.ValidUntil),
+			X509Cert:   types.StringValue(dir.Idp.X509Cert),
+		},
+		Role: RoleModel{
+			Details: []DetailsModel{},
+			Option:  types.StringValue(dir.Role.Option),
+		},
 	}
 
-	/*for _, details := range result.Role.Details {
+	for n, details := range dir.Role.Details {
 		plan.Role.Details = append(plan.Role.Details, DetailsModel{
 			Key:    types.StringValue(details.Key),
 			Values: []ValuesModel{},
 		})
-	}*/
 
-	//for _, detailsValues := range result.Role.Details {
-	//	plan.Role.Details.Values = append(plan.Role.Details, DetailsModel{})
-	//}
+		plan.Role.Details[n].Values = append(plan.Role.Details[n].Values, ValuesModel{
+			Condition: details.Values[0].Condition,
+			RoleIds:   details.Values[0].RoleIds,
+			Type:      details.Values[0].Type,
+		})
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

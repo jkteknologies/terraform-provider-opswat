@@ -28,7 +28,7 @@ import (
 var (
 	// these will be set by the goreleaser configuration
 	// to appropriate values for the compiled binary.
-	version string = "dev"
+	version string = "v0.1.3"
 
 	// goreleaser can pass other information to the main package, such as the specific commit
 	// https://goreleaser.com/cookbooks/using-main.version/
@@ -46,7 +46,7 @@ func main() {
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "github.com/gerbil/terraform-provider-opswat",
+		Address: "registry.terraform.io/gerbil/terraform-provider-opswat",
 		Debug:   debug,
 	}
 
