@@ -12,6 +12,6 @@ data "opswat_file_sync" "new" {}
 ```
 
 
-## Argument Reference
-The following attributes are exported:
+## Schema
+Read-only:
 - `timeout` (Int) OPSWAT Global sync connection timeout in minutes
