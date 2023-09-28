@@ -37,6 +37,6 @@ secret/
 # Keep windows files with windows line endings
 *.winfile eol=crlf
 
-/provider-install-verification/
-provider-install-verification/
-provider-install-verification/*
+/examples/provider-install-verification/
+examples/provider-install-verification/
+examples/provider-install-verification/*

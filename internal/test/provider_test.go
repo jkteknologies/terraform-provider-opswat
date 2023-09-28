@@ -3,7 +3,7 @@ package opswatProvider
 import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	opswatProvider "terraform-provider-opswat/opswat/provider"
+	opswatProvider "terraform-provider-opswat/internal/provider"
 )
 
 const (

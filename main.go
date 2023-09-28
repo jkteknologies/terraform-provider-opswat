@@ -12,7 +12,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"terraform-provider-opswat/opswat/provider"
+	"terraform-provider-opswat/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
