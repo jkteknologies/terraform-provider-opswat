@@ -38,3 +38,5 @@ secret/
 *.winfile eol=crlf
 
 /provider-install-verification/
+provider-install-verification/
+provider-install-verification/*
