@@ -9,9 +9,9 @@ Terraform Provider For OPSWAT Metadefender Core
 Supported Versions
 ------------------
 
-| Terraform version | minimum provider version |maximum provider version
-|-------------------|--------------------------| ----| 
-| >= 1.5.x	         | 1.0.0	                   | latest |
+| Terraform version | Minimum Core version | Maximum Core version 
+|------------------|----------------------|----------------------| 
+| >= 1.5.x	        | 5.6.0	               | latest               |
 
 Requirements
 ------------
