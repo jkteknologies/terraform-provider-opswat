@@ -17,7 +17,7 @@ var (
 )
 
 // NewGlobalWorkflows is a helper function to simplify the provider implementation.
-func newWorkflows() datasource.DataSource {
+func NewWorkflows() datasource.DataSource {
 	return &workflows{}
 }
 

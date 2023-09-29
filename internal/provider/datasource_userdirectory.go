@@ -19,7 +19,7 @@ var (
 )
 
 // NewGlobalUserDirectory is a helper function to simplify the provider implementation.
-func newUserDirectory() datasource.DataSource {
+func NewUserDirectory() datasource.DataSource {
 	return &userDirectory{}
 }
 

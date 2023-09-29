@@ -13,7 +13,7 @@ const (
 	// such as updating the Makefile and running the testing through that tool.
 	providerConfig = `
 provider "opswat" {
-  apikey = "8d47ca941d0cce586ea6c878d28c7fdb84c3"
+  apikey = "xxx"
   host   = "https://opswat.dev.av.swissre.cn"
 }
 `
