@@ -1,6 +1,8 @@
-Terraform Provider For OPSWAT
+Terraform Provider For OPSWAT Metadefender Core
 ==================
 
+- Official API - https://docs.opswat.com/mdcore/metadefender-core (OAS 3)
+- Some additional APIs (not provided in the official api doc) supported (workflows, userdirectories for sso)
 - Documentation: https://registry.terraform.io/providers/gerbil/opswat/latest/docs
 - [![Release Go project](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml/badge.svg)](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml)
 
