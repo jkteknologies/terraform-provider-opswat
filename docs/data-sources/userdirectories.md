@@ -1,8 +1,10 @@
 ---
-page_title: ` -opswat_userdirectory Resource - terraform-provider-opswat` -
-subcategory: ` -` -
-description: OPSWAT User directories
-  
+subcategory: "SSO"
+layout: "opswat"
+page_title: "OPSWAT: opswat_userdirectories"
+sidebar_current: "docs-opswat-datasource-userdirectories"
+description: |-
+  OPSWAT User directories.
 ---
 
 -> NOTE: Only SAML integration supported.
@@ -10,9 +12,9 @@ description: OPSWAT User directories
 ## Example Usage
 
 ```terraform
-data "opswat_userdirectory" "current" {}
+data "opswat_userdirectories" "current" {}
 
-output "opswat_userdirectory" {
+output "opswat_userdirectories" {
   value = data.opswat_userdirectory.current
 }
 ```

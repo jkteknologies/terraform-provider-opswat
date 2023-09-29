@@ -1,18 +1,20 @@
 ---
-page_title: "opswat_global_sync Resource - terraform-provider-opswat"
-subcategory: ""
-description: OPSWAT Global sync connection timeout
-  
+subcategory: "Connection"
+layout: "opswat"
+page_title: "OPSWAT: opswat_file_sync"
+sidebar_current: "docs-opswat-resource-file-sync"
+description: |-
+  OPSWAT Global sync connection timeout
 ---
 
 ## Example Usage
 
 ```terraform
-resource "opswat_file_sync" "new" {
+resource "opswat_file_sync" "current" {
   timeout = 10
 }
 ```
 
-
-## Argument Reference
-- `timeout` (Required) OPSWAT Global sync connection timeout in minutes
+## Schema
+Required:  
+- `timeout` (Int) OPSWAT Global sync connection timeout in minutes

@@ -90,7 +90,7 @@ type LogoutMethodModel struct {
 
 // Metadata returns the data source type name.
 func (d *userDirectory) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_userdirectory"
+	resp.TypeName = req.ProviderTypeName + "_userdirectories"
 }
 
 // Schema defines the schema for the data source.

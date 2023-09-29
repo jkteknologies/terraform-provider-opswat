@@ -105,11 +105,12 @@ func (r *Workflow) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"scan_allowed": schema.ListAttribute{
 				ElementType: types.Int64Type,
-				Description: "Restrictions - Restrict access to following roles",
+				Description: "Restrictions - Restrict access to following roles.",
 				Optional:    true,
 			},
 			"result_allowed": schema.ListNestedAttribute{
-				Optional: true,
+				Optional:    true,
+				Description: "Visibility of Processing result - Visibility of scan result.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"role": schema.Int64Attribute{

@@ -33,7 +33,7 @@ func (r *Session) Metadata(_ context.Context, req resource.MetadataRequest, resp
 // Schema defines the schema for the resource.
 func (r *Session) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Global file sync can timeout resource.",
+		Description: "Global session timeouts resource.",
 		Attributes: map[string]schema.Attribute{
 			"absolute_session_timeout": schema.Int64Attribute{
 				Description: "The interval (in milliseconds) for overall session length timeout (regardless of activity). minimal 300000. 0 - for infinity sessions.",
