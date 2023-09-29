@@ -40,3 +40,6 @@ secret/
 /examples/provider-install-verification/
 examples/provider-install-verification/
 examples/provider-install-verification/*
+
+internal/test/provider*
+/internal/test/provider*
