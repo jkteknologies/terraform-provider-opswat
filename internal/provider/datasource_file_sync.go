@@ -82,7 +82,7 @@ func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	//fmt.Println(types.Int64Value(int64(result.Timeout)))
+	//fmt.Println(types.Int64Value(int64(result.Timeout))) test
 
 	state.Timeout = types.Int64Value(int64(result.Timeout))
 
