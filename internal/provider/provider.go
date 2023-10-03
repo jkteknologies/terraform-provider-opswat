@@ -189,5 +189,6 @@ func (p *opswatProvider) Resources(_ context.Context) []func() resource.Resource
 		NewQueue,
 		NewWorkflow,
 		NewDir,
+		NewUser,
 	}
 }

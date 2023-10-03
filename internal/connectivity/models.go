@@ -156,3 +156,15 @@ type LoginMethod struct {
 type LogoutMethod struct {
 	Redirect string `json:"redirect"`
 }
+
+// User API /admin/user
+type User struct {
+	ApiKey      string   `json:"api_key"`
+	DirectoryId int      `json:"directory_id"`
+	DisplayName string   `json:"display_name"`
+	Email       string   `json:"email"`
+	ID          int      `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	Roles       []int    `json:"roles"`
+	UiSettings  struct{} `json:"ui_settings,default:{abc:123}"`
+}
