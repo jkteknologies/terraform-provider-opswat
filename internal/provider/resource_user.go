@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/emirpasic/gods/utils"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -57,7 +58,7 @@ func (r *User) Schema(_ context.Context, _ resource.SchemaRequest, resp *resourc
 			},
 			"id": schema.Int64Attribute{
 				Description: "User id.",
-				Required:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -71,9 +72,28 @@ func (r *User) Schema(_ context.Context, _ resource.SchemaRequest, resp *resourc
 				Description: "User rights.",
 				Required:    true,
 			},
+			"rights": schema.SingleNestedAttribute{
+				Optional: true,
+				Attributes: map[string]schema.Attribute{
+					"download": schema.ListAttribute{
+						ElementType: types.StringType,
+						Optional:    true,
+					},
+					"fetch": schema.ListAttribute{
+						ElementType: types.StringType,
+						Optional:    true,
+					},
+				},
+			},
 			"ui_settings": schema.ObjectAttribute{
 				Description: "User UI settings.",
 				Optional:    true,
+				AttributeTypes: map[string]attr.Type{
+					"refresh_rate":                 types.StringType,
+					"summary_time_period":          types.StringType,
+					"processing_chart_time_period": types.StringType,
+					"engine_time_period":           types.StringType,
+				},
 			},
 		},
 	}
@@ -85,7 +105,7 @@ type userModel struct {
 	DirectoryId types.Int64  `tfsdk:"directory_id"`
 	DisplayName types.String `tfsdk:"display_name"`
 	Email       types.String `tfsdk:"email"`
-	ID          types.Int64  `tfsdk:"id,omitempty"`
+	ID          types.Int64  `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
 	Roles       []int        `tfsdk:"roles"`
 	UiSettings  struct{}     `tfsdk:"ui_settings"`
