@@ -5,9 +5,9 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "C:\\Users\\s9p5je\\go\\bin\\terraform-provider-opswat.exe"
-  cmd = "retry"
+  cmd = "go-retry --count=5 --interval=1s --verbose go install ."
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata", "examples", "website", ".github"]
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "website", ".github"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false

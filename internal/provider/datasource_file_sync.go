@@ -1,12 +1,15 @@
 package opswatProvider
 
 import (
-	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	opswatClient "terraform-provider-opswat/internal/connectivity"
+)
+
+import (
+	"context"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
