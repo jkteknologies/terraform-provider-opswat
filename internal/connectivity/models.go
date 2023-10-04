@@ -159,12 +159,25 @@ type LogoutMethod struct {
 
 // User API /admin/user
 type User struct {
-	ApiKey      string   `json:"api_key"`
-	DirectoryId int      `json:"directory_id"`
-	DisplayName string   `json:"display_name"`
-	Email       string   `json:"email"`
-	ID          int      `json:"id,omitempty"`
-	Name        string   `json:"name"`
-	Roles       []int    `json:"roles"`
-	UiSettings  struct{} `json:"ui_settings,default:{abc:123}"`
+	ApiKey      string     `json:"api_key"`
+	DirectoryId int        `json:"directory_id"`
+	DisplayName string     `json:"display_name"`
+	Email       string     `json:"email"`
+	ID          int        `json:"id,omitempty"`
+	Name        string     `json:"name"`
+	Roles       []string   `json:"roles"`
+	Rights      Rights     `json:"rights"`
+	UiSettings  UiSettings `json:"ui_settings,default:{abc:123}"`
+}
+
+type Rights struct {
+	Download []string `json:"download"`
+	Fetch    []string `json:"fetch"`
+}
+
+type UiSettings struct {
+	RefreshRate               string `json:"refresh_rate"`
+	SummaryTimePeriod         string `json:"summary_time_period"`
+	ProcessingChartTimePeriod string `json:"processing_chart_time_period"`
+	EngineTimePeriod          string `json:"engine_time_period"`
 }

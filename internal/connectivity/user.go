@@ -1,9 +1,13 @@
 package opswatClient
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TylerBrock/colorjson"
+	"github.com/emirpasic/gods/utils"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"strings"
 )
@@ -80,6 +84,13 @@ func (c *Client) CreateUser(config User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	ctx := context.Background()
+	tflog.Info(ctx, utils.ToString(preparedJson))
+
+	f := colorjson.NewFormatter()
+	f.Indent = 4
+	fmt.Println(string(preparedJson))
 
 	body, err := c.doRequest(req)
 

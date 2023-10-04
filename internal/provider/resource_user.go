@@ -68,8 +68,8 @@ func (r *User) Schema(_ context.Context, _ resource.SchemaRequest, resp *resourc
 				Required:    true,
 			},
 			"roles": schema.ListAttribute{
-				ElementType: types.Int64Type,
-				Description: "User rights.",
+				ElementType: types.StringType,
+				Description: "User role to map user to.",
 				Required:    true,
 			},
 			"rights": schema.SingleNestedAttribute{
@@ -107,8 +107,21 @@ type userModel struct {
 	Email       types.String `tfsdk:"email"`
 	ID          types.Int64  `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
-	Roles       []int        `tfsdk:"roles"`
-	UiSettings  struct{}     `tfsdk:"ui_settings"`
+	Roles       []string     `tfsdk:"roles"`
+	Rights      Rights       `tfsdk:"rights"`
+	UiSettings  UiSettings   `tfsdk:"ui_settings"`
+}
+
+type Rights struct {
+	Download []string `tfsdk:"download"`
+	Fetch    []string `tfsdk:"fetch"`
+}
+
+type UiSettings struct {
+	RefreshRate               string `tfsdk:"refresh_rate"`
+	SummaryTimePeriod         string `tfsdk:"summary_time_period"`
+	ProcessingChartTimePeriod string `tfsdk:"processing_chart_time_period"`
+	EngineTimePeriod          string `tfsdk:"engine_time_period"`
 }
 
 func (r *User) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -149,17 +162,26 @@ func (r *User) Create(ctx context.Context, req resource.CreateRequest, resp *res
 		ID:          int(plan.ID.ValueInt64()),
 		Name:        plan.Name.ValueString(),
 		Roles:       plan.Roles,
-		UiSettings:  plan.UiSettings,
+		Rights: opswatClient.Rights{
+			Download: plan.Rights.Download,
+			Fetch:    plan.Rights.Fetch,
+		},
+		UiSettings: opswatClient.UiSettings{
+			RefreshRate:               plan.UiSettings.RefreshRate,
+			SummaryTimePeriod:         plan.UiSettings.SummaryTimePeriod,
+			ProcessingChartTimePeriod: plan.UiSettings.ProcessingChartTimePeriod,
+			EngineTimePeriod:          plan.UiSettings.EngineTimePeriod,
+		},
 	}
 
 	tflog.Info(ctx, utils.ToString(json))
 
-	// Update existing user directory
+	// Update existing user
 	result, err := r.client.CreateUser(json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Creating OPSWAT user directory",
-			"Could not add new user directory, unexpected error: "+err.Error(),
+			"Error Creating OPSWAT user",
+			"Could not add new user, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -202,7 +224,7 @@ func (r *User) Read(ctx context.Context, req resource.ReadRequest, resp *resourc
 		ID:          types.Int64Value(int64(user.ID)),
 		Name:        types.StringValue(user.Name),
 		Roles:       append(user.Roles),
-		UiSettings:  user.UiSettings,
+		UiSettings:  UiSettings(user.UiSettings),
 	}
 
 	// Set refreshed state
