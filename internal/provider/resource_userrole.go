@@ -349,14 +349,26 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	tflog.Info(ctx, utils.ToString("READ"))
+	tflog.Info(ctx, utils.ToString("READ IN UPDATE"))
+
+	displayname := ""
+	name := ""
+
+	if !plan.DisplayName.Equal(state.DisplayName) {
+		displayname = plan.DisplayName.ValueString()
+	}
+	if !plan.Name.Equal(state.Name) {
+		name = plan.Name.ValueString()
+	}
 
 	// Generate API request body from plan
 	json := opswatClient.UserRole{
-		DisplayName: state.DisplayName.ValueString(),
-		ID:          int(state.ID.ValueInt64()),
-		Name:        state.Name.ValueString(),
-		UserRights:  opswatClient.UserRights(state.UserRights),
+		DisplayName: displayname,
+		Name:        name,
+		UserRights: opswatClient.UserRights{
+			Download: state.UserRights.Download,
+			Fetch:    state.UserRights.Fetch,
+		},
 	}
 
 	tflog.Info(ctx, utils.ToString(json))
@@ -365,8 +377,8 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	_, err := r.client.UpdateUserRole(int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Creating OPSWAT user",
-			"Could not add new user, unexpected error: "+err.Error(),
+			"Error Updating OPSWAT user",
+			"Could not update existing user, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -399,7 +411,7 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *UserRole) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from plan
-	var state userModel
+	var state userRoleModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

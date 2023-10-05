@@ -171,10 +171,10 @@ type User struct {
 
 // Role API /admin/role
 type UserRole struct {
-	Name        string     `json:"name"`
-	DisplayName string     `json:"display_name"`
+	Name        string     `json:"name,omitempty"`
+	DisplayName string     `json:"display_name,omitempty"`
 	ID          int        `json:"id,omitempty"`
-	UserRights  UserRights `json:"rights"`
+	UserRights  UserRights `json:"rights,omitempty"`
 }
 
 type UserRights struct {
