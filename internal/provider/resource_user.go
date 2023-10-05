@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/emirpasic/gods/utils"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	opswatClient "terraform-provider-opswat/internal/connectivity"
@@ -41,20 +41,20 @@ func (r *User) Schema(_ context.Context, _ resource.SchemaRequest, resp *resourc
 		Description: "User resource.",
 		Attributes: map[string]schema.Attribute{
 			"api_key": schema.StringAttribute{
-				Description: "Apikey; This function generates valid api key for metadefander core based on following rules:\n APIKEY validation criteria\n The length of the API key must be exactly 36 characters.\n It must contain numeric and lower case a, b, c, d, e and f letter characters only\n It must contain at least 10 lower case a, b, c, d, e or f letter characters.\n It must contain at least 10 numeric characters.\n It is allowed to contain at most 3 consecutive lower case letter characters (e.g. \"abcd1a2b3c...\" is invalid because of the four consecutive letters).\n It is allowed to contain at most 3 consecutive numeric characters (e.g. \"1234a1b2c3...\" is invalid because of the four consecutive numeric characters).",
-				Required:    true,
+				Description: "Apikey; This function generates valid api key for Metadefender core based on following rules:\n APIKEY validation criteria\n The length of the API key must be exactly 36 characters.\n It must contain numeric and lower case a, b, c, d, e and f letter characters only\n It must contain at least 10 lower case a, b, c, d, e or f letter characters.\n It must contain at least 10 numeric characters.\n It is allowed to contain at most 3 consecutive lower case letter characters (e.g. \"abcd1a2b3c...\" is invalid because of the four consecutive letters).\n It is allowed to contain at most 3 consecutive numeric characters (e.g. \"1234a1b2c3...\" is invalid because of the four consecutive numeric characters).",
+				Optional:    true,
 			},
 			"directory_id": schema.Int64Attribute{
 				Description: "User dir ID to map user to.",
-				Required:    true,
+				Optional:    true,
 			},
 			"display_name": schema.StringAttribute{
 				Description: "User display name.",
-				Required:    true,
+				Optional:    true,
 			},
 			"email": schema.StringAttribute{
 				Description: "User email.",
-				Required:    true,
+				Optional:    true,
 			},
 			"id": schema.Int64Attribute{
 				Description: "User id.",
@@ -65,35 +65,19 @@ func (r *User) Schema(_ context.Context, _ resource.SchemaRequest, resp *resourc
 			},
 			"name": schema.StringAttribute{
 				Description: "User name.",
-				Required:    true,
+				Optional:    true,
+			},
+			"password": schema.StringAttribute{
+				Description: "User password.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"roles": schema.ListAttribute{
 				ElementType: types.StringType,
 				Description: "User role to map user to.",
-				Required:    true,
-			},
-			"rights": schema.SingleNestedAttribute{
-				Optional: true,
-				Attributes: map[string]schema.Attribute{
-					"download": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-					},
-					"fetch": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-					},
-				},
-			},
-			"ui_settings": schema.ObjectAttribute{
-				Description: "User UI settings.",
 				Optional:    true,
-				AttributeTypes: map[string]attr.Type{
-					"refresh_rate":                 types.StringType,
-					"summary_time_period":          types.StringType,
-					"processing_chart_time_period": types.StringType,
-					"engine_time_period":           types.StringType,
-				},
 			},
 		},
 	}
@@ -107,21 +91,8 @@ type userModel struct {
 	Email       types.String `tfsdk:"email"`
 	ID          types.Int64  `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
+	Password    types.String `tfsdk:"password"`
 	Roles       []string     `tfsdk:"roles"`
-	Rights      Rights       `tfsdk:"rights"`
-	UiSettings  UiSettings   `tfsdk:"ui_settings"`
-}
-
-type Rights struct {
-	Download []string `tfsdk:"download"`
-	Fetch    []string `tfsdk:"fetch"`
-}
-
-type UiSettings struct {
-	RefreshRate               string `tfsdk:"refresh_rate"`
-	SummaryTimePeriod         string `tfsdk:"summary_time_period"`
-	ProcessingChartTimePeriod string `tfsdk:"processing_chart_time_period"`
-	EngineTimePeriod          string `tfsdk:"engine_time_period"`
 }
 
 func (r *User) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -161,17 +132,8 @@ func (r *User) Create(ctx context.Context, req resource.CreateRequest, resp *res
 		Email:       plan.Email.ValueString(),
 		ID:          int(plan.ID.ValueInt64()),
 		Name:        plan.Name.ValueString(),
+		Password:    plan.Password.ValueString(),
 		Roles:       plan.Roles,
-		Rights: opswatClient.Rights{
-			Download: plan.Rights.Download,
-			Fetch:    plan.Rights.Fetch,
-		},
-		UiSettings: opswatClient.UiSettings{
-			RefreshRate:               plan.UiSettings.RefreshRate,
-			SummaryTimePeriod:         plan.UiSettings.SummaryTimePeriod,
-			ProcessingChartTimePeriod: plan.UiSettings.ProcessingChartTimePeriod,
-			EngineTimePeriod:          plan.UiSettings.EngineTimePeriod,
-		},
 	}
 
 	tflog.Info(ctx, utils.ToString(json))
@@ -223,8 +185,8 @@ func (r *User) Read(ctx context.Context, req resource.ReadRequest, resp *resourc
 		Email:       types.StringValue(user.Email),
 		ID:          types.Int64Value(int64(user.ID)),
 		Name:        types.StringValue(user.Name),
+		Password:    types.StringValue(user.Password),
 		Roles:       append(user.Roles),
-		UiSettings:  UiSettings(user.UiSettings),
 	}
 
 	// Set refreshed state
@@ -237,9 +199,112 @@ func (r *User) Read(ctx context.Context, req resource.ReadRequest, resp *resourc
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *User) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan userModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
+	var state userModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apikey := ""
+	directoryid := 0
+	displayname := ""
+	email := ""
+	name := ""
+	//roles := []
+	if !plan.ApiKey.Equal(state.ApiKey) {
+		apikey = plan.ApiKey.ValueString()
+	}
+	if !plan.DirectoryId.Equal(state.DirectoryId) {
+		directoryid = int(plan.DirectoryId.ValueInt64())
+	}
+	if !plan.DisplayName.Equal(state.DisplayName) {
+		displayname = plan.DisplayName.ValueString()
+	}
+	if !plan.Email.Equal(state.Email) {
+		email = plan.Email.ValueString()
+	}
+	if !plan.Name.Equal(state.Name) {
+		name = plan.Name.ValueString()
+	}
+
+	// Generate API request body from plan
+	json := opswatClient.User{
+		ApiKey:      apikey,
+		DirectoryId: directoryid,
+		DisplayName: displayname,
+		Email:       email,
+		Name:        name,
+		Password:    plan.Password.ValueString(),
+		Roles:       plan.Roles,
+	}
+
+	tflog.Info(ctx, utils.ToString(json))
+
+	// Update existing user
+	_, err := r.client.UpdateUser(int(plan.ID.ValueInt64()), json)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Creating OPSWAT user",
+			"Could not add new user, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	// Get refreshed workflow config from OPSWAT
+	user, err := r.client.GetUser(int(plan.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading OPSWAT workflow",
+			"Could not read OPSWAT workflow "+err.Error(),
+		)
+		return
+	}
+
+	plan = userModel{
+		ApiKey:      types.StringValue(user.ApiKey),
+		DirectoryId: types.Int64Value(int64(user.DirectoryId)),
+		DisplayName: types.StringValue(user.DisplayName),
+		Email:       types.StringValue(user.Email),
+		ID:          types.Int64Value(int64(user.ID)),
+		Name:        types.StringValue(user.Name),
+		Password:    types.StringValue(user.Password),
+		Roles:       append(user.Roles),
+	}
+
+	// Set refreshed state
+	resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *User) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Retrieve values from plan
+	var state userModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update existing dir based on ID
+	err := r.client.DeleteUser(int(state.ID.ValueInt64()))
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Delete OPSWAT user",
+			"Could not delete user unexpected error: "+err.Error(),
+		)
+		return
+	}
 }

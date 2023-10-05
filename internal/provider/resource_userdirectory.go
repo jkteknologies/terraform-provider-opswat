@@ -481,7 +481,7 @@ func (r *Dir) Delete(ctx context.Context, req resource.DeleteRequest, resp *reso
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT user directory",
-			"Could not update user directory, unexpected error: "+err.Error(),
+			"Could not delete user directory, unexpected error: "+err.Error(),
 		)
 		return
 	}

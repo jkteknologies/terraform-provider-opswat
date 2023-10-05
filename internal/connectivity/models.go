@@ -159,25 +159,45 @@ type LogoutMethod struct {
 
 // User API /admin/user
 type User struct {
-	ApiKey      string     `json:"api_key"`
-	DirectoryId int        `json:"directory_id"`
-	DisplayName string     `json:"display_name"`
-	Email       string     `json:"email"`
-	ID          int        `json:"id,omitempty"`
+	ApiKey      string   `json:"api_key,omitempty"`
+	DirectoryId int      `json:"directory_id,omitempty"`
+	DisplayName string   `json:"display_name,omitempty"`
+	Email       string   `json:"email,omitempty"`
+	ID          int      `json:"id,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Password    string   `json:"password,omitempty"`
+	Roles       []string `json:"roles,omitempty"`
+}
+
+// Role API /admin/role
+type UserRole struct {
 	Name        string     `json:"name"`
-	Roles       []string   `json:"roles"`
-	Rights      Rights     `json:"rights"`
-	UiSettings  UiSettings `json:"ui_settings,default:{abc:123}"`
+	DisplayName string     `json:"display_name"`
+	ID          int        `json:"id,omitempty"`
+	UserRights  UserRights `json:"rights"`
 }
 
-type Rights struct {
-	Download []string `json:"download"`
+type UserRights struct {
+	//Scanlog     []string `json:"scanlog,omitempty"`
+	//Statistics  []string `json:"statistics,omitempty"`
+	//Quarantine  []string `json:"quarantine,omitempty"`
+	//Updatelog   []string `json:"updatelog,omitempty"`
+	//Configlog   []string `json:"configlog,omitempty"`
+	//Rule        []string `json:"rule,omitempty"`
+	//Workflow    []string `json:"workflow,omitempty"`
+	//Zone        []string `json:"zone,omitempty"`
+	//Agents      []string `json:"agents,omitempty"`
+	//Engines     []string `json:"engines,omitempty"`
+	//External    []string `json:"external,omitempty"`
+	//Skip        []string `json:"skip,omitempty"`
+	//Cert        []string `json:"cert,omitempty"`
+	//WebhookAuth []string `json:"webhook_auth,omitempty"`
+	//Retention   []string `json:"retention,omitempty"`
+	//Users       []string `json:"users,omitempty"`
+	//License     []string `json:"license,omitempty"`
+	//Update      []string `json:"update,omitempty"`
+	//Scan        []string `json:"scan,omitempty"`
+	//Healthcheck []string `json:"healthcheck,omitempty"`
 	Fetch    []string `json:"fetch"`
-}
-
-type UiSettings struct {
-	RefreshRate               string `json:"refresh_rate"`
-	SummaryTimePeriod         string `json:"summary_time_period"`
-	ProcessingChartTimePeriod string `json:"processing_chart_time_period"`
-	EngineTimePeriod          string `json:"engine_time_period"`
+	Download []string `json:"download"`
 }
