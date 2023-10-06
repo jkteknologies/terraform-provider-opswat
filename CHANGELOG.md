@@ -1,3 +1,8 @@
+## 0.1.6 (Released)
+
+FEATURES:
+- User and User Role resources added
+
 ## 0.1.5 (Released)
 
 FEATURES:
