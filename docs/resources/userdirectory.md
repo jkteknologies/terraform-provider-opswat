@@ -43,8 +43,8 @@ resource "opswat_userdirectory" "new" {
   }
   sp = {
     enable_idp_initiated = false
-    entity_id = "6xxx"
-    login_url = "https://opswat.dev.av.swissre.cn/ssologin/saml/XXXX"
+    entity_id = "xxx"
+    login_url = "https://opswat.dev.av.xxx.cn/ssologin/saml/XXXX"
     support_entity_id = true
     support_logout_url = false
     support_private_key = false
