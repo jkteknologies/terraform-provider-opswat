@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -22,19 +23,20 @@ type Client struct {
 // NewClient - test
 func NewClient(host, apikey *string) (*Client, error) {
 
-	/*tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}*/
-
-	// WO for SR pc
-	proxy, _ := url.Parse("http://gate-zrh.swissre.com:9443")
+	// WO for corporate proxy
+	proxy, _ := url.Parse("https://localhost:8080")
+	tr := &http.Transport{}
+	val, present := os.LookupEnv("HTTPS_PROXY")
+	if present {
+		proxy, _ = url.Parse(val)
+		tr = &http.Transport{Proxy: http.ProxyURL(proxy), TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	} else {
+		tr = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	}
 
 	c := Client{
-		HTTPClient: &http.Client{Timeout: 1000 * time.Second, Transport: &http.Transport{Proxy: http.ProxyURL(proxy), TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}},
-		//HTTPClient: &http.Client{Timeout: 100 * time.Second},
-		//HTTPClient: &http.Client{Timeout: 100 * time.Second, Transport: tr},
-		// Default OPSWAT URL
-		HostURL: HostURL,
+		HTTPClient: &http.Client{Timeout: 1000 * time.Second, Transport: tr},
+		HostURL:    HostURL,
 	}
 
 	if host != nil {
