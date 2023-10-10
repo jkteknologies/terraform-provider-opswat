@@ -22,7 +22,7 @@ resource "opswat_user" "new" {
   api_key = "xxx"
   directory_id = 1
   display_name = "TFUSER"
-  email = "tfuser@av.swissre.cn"
+  email = "tfuser@av.xxx.com"
   name = "TFUSER"
   roles = [1]
   # UI access password
