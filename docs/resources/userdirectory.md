@@ -49,7 +49,7 @@ resource "opswat_userdirectory" "new" {
     support_logout_url = false
     support_private_key = false
   }
-  user_identified_by = "$${http://schemas.microsoft.com/identity/claims/displayname}"
+  user_identified_by = "${http://schemas.microsoft.com/identity/claims/displayname}"
 }
 ```
 
@@ -84,4 +84,4 @@ Required:
     - `support_entity_id` - (Bool) Custom entity (client id) usage [should be true in case of SAML integration]
     - `support_logout_url` - (Bool) Custom logout url support [might be false]
     - `support_private_key` - (Bool) Private key flag [might be false]
-- `user_identified_by` - (String) User id/name mapping for UI (claim based) ["$${http://schemas.microsoft.com/identity/claims/displayname}"]
+- `user_identified_by` - (String) User id/name mapping for UI (claim based) ["${http://schemas.microsoft.com/identity/claims/displayname}"]
