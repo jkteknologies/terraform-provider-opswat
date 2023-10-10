@@ -45,7 +45,7 @@ It must contain at least 10 lower case a, b, c, d, e or f letter characters.
 It must contain at least 10 numeric characters.  
 It is allowed to contain at most 3 consecutive lower case letter characters (e.g. \"abcd1a2b3c...\" is invalid because of the four consecutive letters).  
 It is allowed to contain at most 3 consecutive numeric characters (e.g. \"1234a1b2c3...\" is invalid because of the four consecutive numeric characters).
-- `directory_id` - (Int) Base user template for mapping purposes.
+- `directory_id` - (Int) Base user template for mapping purposes. Options: 1 - LOCAL, 2 - SYSTEM.
 - `display_name`- (String) User display name.
 - `email` - (String) User email.
 - `name` - (String) User name.
