@@ -201,3 +201,8 @@ type UserRights struct {
 	Fetch    []string `json:"fetch"`
 	Download []string `json:"download"`
 }
+
+// globalSyncTimeout API /admin/config/file/sync
+type scanHistory struct {
+	Cleanuprange int `json:"cleanuprange"`
+}
