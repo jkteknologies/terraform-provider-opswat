@@ -1,10 +1,10 @@
 ---
-subcategory: "Connection"
+subcategory: "Maintenance"
 layout: "opswat"
-page_title: "OPSWAT: opswat_file_sync"
-sidebar_current: "docs-opswat-resource-file-sync"
+page_title: "OPSWAT: opswat_scan_history"
+sidebar_current: "docs-opswat-resource-scan-history"
 description: |-
-  OPSWAT Global sync connection timeout
+  OPSWAT processing history clean up time
 ---
 
 ## Example Usage
