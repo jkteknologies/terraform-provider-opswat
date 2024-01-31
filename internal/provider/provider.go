@@ -191,5 +191,6 @@ func (p *opswatProvider) Resources(_ context.Context) []func() resource.Resource
 		NewDir,
 		NewUser,
 		NewUserRole,
+		NewScanHistory,
 	}
 }

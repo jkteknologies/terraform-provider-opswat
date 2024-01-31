@@ -1,5 +1,5 @@
 ---
-subcategory: "Maintenance"
+subcategory: "Scan"
 layout: "opswat"
 page_title: "OPSWAT: opswat_scan_history"
 sidebar_current: "docs-opswat-resource-scan-history"
