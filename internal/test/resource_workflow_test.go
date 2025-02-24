@@ -60,7 +60,7 @@ resource "opswat_workflow" "new" {
       visibility ="3"
     },
     {
-      role = "4"
+      role = "#"
       visibility ="3"
     }
   ]

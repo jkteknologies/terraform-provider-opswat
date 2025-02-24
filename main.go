@@ -28,7 +28,7 @@ import (
 var (
 	// these will be set by the goreleaser configuration
 	// to appropriate values for the compiled binary.
-	version string = "v0.1.3"
+	version string = "v0.1.0"
 
 	// goreleaser can pass other information to the main package, such as the specific commit
 	// https://goreleaser.com/cookbooks/using-main.version/
@@ -42,11 +42,11 @@ func main() {
 
 	opts := providerserver.ServeOpts{
 		// NOTE: This is not a typical Terraform Registry provider address,
-		// such as registry.terraform.io/gerbil/terraform-provider-opswat". This specific
+		// such as registry.terraform.io/jkteknologies/terraform-provider-opswat". This specific
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "registry.terraform.io/gerbil/terraform-provider-opswat",
+		Address: "registry.terraform.io/jkteknologies/terraform-provider-opswat",
 		Debug:   debug,
 	}
 

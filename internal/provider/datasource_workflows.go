@@ -3,11 +3,12 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -231,7 +232,7 @@ type OptionValuesModel struct {
 func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state workflowsModel
 
-	result, err := d.client.GetWorkflows()
+	result, err := d.client.GetWorkflows(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read OPSWAT workflows",
@@ -239,12 +240,6 @@ func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 		)
 		return
 	}
-
-	//fmt.Println("WORKFLOWS")
-	//fmt.Printf("Workflows : %+v", result)
-
-	//fmt.Println("RESULT")
-	//fmt.Printf("Workflows : %+v", result)
 
 	for _, workflow := range result {
 		workflowState := workflowModel{
@@ -264,7 +259,6 @@ func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			WorkflowID:                           types.Int64Value(int64(workflow.WorkflowId)),
 			ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 			ScanAllowed:                          append(workflow.ScanAllowed),
-			//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 			OptionValues: OptionValuesModel{
 				ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
 				ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxRecursionLevel)),
@@ -288,9 +282,6 @@ func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			UserAgents: append(workflow.UserAgents),
 		}
 
-		//fmt.Println("PARSED WORKFLOWS") test
-		//spew.Dump(workflowState)
-
 		for _, resultsallowed := range workflow.ResultAllowed {
 			workflowState.ResultAllowed = append(workflowState.ResultAllowed, ResultAllowedModel{
 				Role:       types.Int64Value(int64(resultsallowed.Role)),
@@ -298,13 +289,10 @@ func (d *workflows) Read(ctx context.Context, req datasource.ReadRequest, resp *
 			})
 		}
 
-		//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{
-		//	DSAdvancedSettingHash: types.Int64Value(int64(prefhashes.DSAdvancedSettingHash)),
-		//})
-
 		state.Workflows = append(state.Workflows, workflowState)
 
 	}
+
 	// Set state
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

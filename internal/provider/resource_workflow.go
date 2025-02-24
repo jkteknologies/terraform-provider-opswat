@@ -3,14 +3,16 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+	"unicode"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
-	"unicode"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -292,7 +294,6 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 		ScanAllowed:                          append(workflow.ScanAllowed),
 		UserAgents:                           append(workflow.UserAgents),
-		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
 			ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxRecursionLevel)),
@@ -314,13 +315,10 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 			VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(workflow.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
 		}}
 
-	//fmt.Println("PARSED WORKFLOWS") test
-	//spew.Dump(workflowState)
-
 	for _, resultsallowed := range workflow.ResultAllowed {
 		// Opswat is using '#' symbol as All roles marker
 		if !unicode.IsDigit(rune(resultsallowed.Role)) {
-			state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
+		state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
 				Role:       types.Int64Value(int64(resultsallowed.Role)),
 				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
 			})
@@ -331,10 +329,6 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 			})
 		}
 	}
-
-	//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{
-	//	DSAdvancedSettingHash: types.Int64Value(int64(prefhashes.DSAdvancedSettingHash)),
-	//})
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

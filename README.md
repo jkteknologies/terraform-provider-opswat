@@ -3,29 +3,29 @@ Terraform Provider For OPSWAT Metadefender Core
 
 - Official API - https://docs.opswat.com/mdcore/metadefender-core (OAS 3)
 - Some additional APIs (not provided in the official api doc) supported (workflows, userdirectories for sso)
-- Documentation: https://registry.terraform.io/providers/gerbil/opswat/latest/docs
-- [![Release Go project](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml/badge.svg)](https://github.com/gerbil/terraform-provider-opswat/actions/workflows/release.yaml)
+- Documentation: https://registry.terraform.io/providers/jkteknologies/opswat/latest/docs
+- [![Release Go project](https://github.com/jkteknologies/terraform-provider-opswat/actions/workflows/release.yaml/badge.svg)](https://github.com/jkteknologies/terraform-provider-opswat/actions/workflows/release.yaml)
 
 Supported Versions
 ------------------
 
-| Terraform version | Minimum Core version | Maximum Core version 
-|------------------|----------------------|----------------------| 
-| >= 1.5.x	        | 5.6.0	               | latest               |
+| Terraform version | Minimum Core version   | Maximum Core version |
+|-------------------|------------------------|----------------------| 
+| >= 1.10.x	        | 5.13.0	               | latest               |
 
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 1.5+
--	[Go](https://golang.org/doc/install) 1.19+ (to build the provider plugin)
+-	[Terraform](https://www.terraform.io/downloads.html) 1.10+
+-	[Go](https://golang.org/doc/install) 1.23+ (to build the provider plugin)
 
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/gerbil/terraform-provider-opswat`
+Clone repository to: `$GOPATH/src/github.com/jkteknologies/terraform-provider-opswat`
 
 ```sh
-$ git clone https://github.com/gerbil/terraform-provider-opswat.git
+$ git clone https://github.com/jkteknologies/terraform-provider-opswat.git
 $ cd terraform-provider-opswat/
 ```
 
@@ -42,7 +42,7 @@ Using the provider
 terraform {
   required_providers {
     opswat = {
-      source = "gerbil/opswat"
+      source = "jkteknologies/opswat"
     }
   }
 }
