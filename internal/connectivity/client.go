@@ -54,8 +54,6 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 
 	req.Header.Set("apikey", c.Apikey)
 
-	//fmt.Println("apikey for req: " + c.Apikey)
-
 	res, err := c.HTTPClient.Do(req)
 
 	if err != nil {

@@ -253,7 +253,7 @@ func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp 
 	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user
-	result, err := r.client.CreateUserRole(json)
+	result, err := r.client.CreateUserRole(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user role",
@@ -374,7 +374,7 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user
-	_, err := r.client.UpdateUserRole(int(plan.ID.ValueInt64()), json)
+	_, err := r.client.UpdateUserRole(ctx, int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT user",
@@ -419,7 +419,7 @@ func (r *UserRole) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 
 	// Update existing dir based on ID
-	err := r.client.DeleteUserRole(int(state.ID.ValueInt64()))
+	err := r.client.DeleteUserRole(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT user role",
