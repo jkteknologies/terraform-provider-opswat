@@ -235,7 +235,7 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user directory
-	result, err := r.client.CreateDir(json)
+	result, err := r.client.CreateDir(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user directory",
@@ -265,7 +265,7 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 	}
 
 	// Get refreshed user directory config from OPSWAT
-	dir, err := r.client.GetDir(int(state.ID.ValueInt64()))
+	dir, err := r.client.GetDir(ctx, int(state.ID.ValueInt64()))
 
 	tflog.Info(ctx, utils.ToString("DIR ID FROM STATE"))
 	tflog.Info(ctx, utils.ToString(state.ID.ValueInt64()))
@@ -393,7 +393,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing dir based on ID
-	_, err := r.client.UpdateDir(int(plan.ID.ValueInt64()), json)
+	_, err := r.client.UpdateDir(ctx, int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT dir",
@@ -403,7 +403,7 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 	}
 
 	// Fetch updated items
-	dir, err := r.client.GetDir(int(plan.ID.ValueInt64()))
+	dir, err := r.client.GetDir(ctx, int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -477,7 +477,7 @@ func (r *Dir) Delete(ctx context.Context, req resource.DeleteRequest, resp *reso
 	}
 
 	// Update existing dir based on ID
-	err := r.client.DeleteDir(int(state.ID.ValueInt64()))
+	err := r.client.DeleteDir(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT user directory",

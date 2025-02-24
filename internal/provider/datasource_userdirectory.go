@@ -232,7 +232,7 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 	var state dirModels
 
 	// Get refreshed session value from OPSWAT
-	userDirs, err := d.client.GetDirs()
+	userDirs, err := d.client.GetDirs(ctx)
 
 	tflog.Info(ctx, utils.ToString(userDirs))
 

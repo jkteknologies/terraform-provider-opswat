@@ -5,23 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/TylerBrock/colorjson"
-	"github.com/emirpasic/gods/utils"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"strings"
 )
 
 // GetDirs - Returns global sync scan timeout
-func (c *Client) GetDirs() ([]UserDirectory, error) {
+func (c *Client) GetDirs(ctx context.Context) ([]UserDirectory, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/userdirectory", c.HostURL))
-
+	tflog.Debug(ctx, "request URL: " + fmt.Sprintf("%s/admin/userdirectory", c.HostURL))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -32,10 +29,6 @@ func (c *Client) GetDirs() ([]UserDirectory, error) {
 
 	err = json.Unmarshal(body, &result)
 
-	ctx := context.TODO()
-	justString := fmt.Sprint(&result)
-	tflog.Info(ctx, justString)
-
 	if err != nil {
 		return nil, err
 	}
@@ -44,15 +37,14 @@ func (c *Client) GetDirs() ([]UserDirectory, error) {
 }
 
 // GetDir - Returns global sync scan timeout
-func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
+func (c *Client) GetDir(ctx context.Context, dirId int) (*UserDirectory, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId))
-
+	tflog.Debug(ctx, "request URL: " + fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirId))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -71,7 +63,7 @@ func (c *Client) GetDir(dirId int) (*UserDirectory, error) {
 }
 
 // UpdateDir - Update global sync scan timeout
-func (c *Client) UpdateDir(dirId int, userDir UserDirectory) (*UserDirectory, error) {
+func (c *Client) UpdateDir(ctx context.Context, dirId int, userDir UserDirectory) (*UserDirectory, error) {
 
 	preparedJson, err := json.Marshal(userDir)
 	if err != nil {
@@ -83,6 +75,7 @@ func (c *Client) UpdateDir(dirId int, userDir UserDirectory) (*UserDirectory, er
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: " + fmt.Sprintf("%s/admin/userdirectory/%d, request body: %s", c.HostURL, dirId, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -101,24 +94,18 @@ func (c *Client) UpdateDir(dirId int, userDir UserDirectory) (*UserDirectory, er
 }
 
 // CreateDir - Creates global sync scan timeout
-func (c *Client) CreateDir(userDir UserDirectory) (*UserDirectory, error) {
+func (c *Client) CreateDir(ctx context.Context, userDir UserDirectory) (*UserDirectory, error) {
 	preparedJson, err := json.Marshal(userDir)
 	if err != nil {
 		return nil, err
 	}
-
-	ctx := context.Background()
-	f := colorjson.NewFormatter()
-	f.Indent = 2
-	s, _ := f.Marshal(userDir)
-	tflog.Info(ctx, "----------- REQUEST -------------")
-	tflog.Info(ctx, utils.ToString(s))
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/admin/userdirectory", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: " + fmt.Sprintf("%s/admin/userdirectory, request body: %s", c.HostURL, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -137,13 +124,14 @@ func (c *Client) CreateDir(userDir UserDirectory) (*UserDirectory, error) {
 }
 
 // DeleteUserDirectory - Delete userdirectory
-func (c *Client) DeleteDir(dirID int) error {
+func (c *Client) DeleteDir(ctx context.Context, dirID int) error {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirID), nil)
 	if err != nil {
 		return err
 	}
 
+	tflog.Debug(ctx, "request URL: " + fmt.Sprintf("%s/admin/userdirectory/%d", c.HostURL, dirID))
 	body, err := c.doRequest(req)
 
 	if err != nil {
