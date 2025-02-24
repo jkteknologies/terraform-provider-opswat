@@ -76,7 +76,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	timeout := plan.Timeout.ValueInt64()
 
 	// Update existing item
-	_, err := r.client.CreateGlobalSync(int(timeout))
+	_, err := r.client.CreateGlobalSync(ctx, int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Global sync value",
@@ -86,7 +86,7 @@ func (r *globalSync) Create(ctx context.Context, req resource.CreateRequest, res
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetGlobalSync(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Global sync timeout",
@@ -115,7 +115,7 @@ func (r *globalSync) Read(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	// Get refreshed item
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetGlobalSync(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Global sync timeout",
@@ -148,7 +148,7 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 	timeout := plan.Timeout.ValueInt64()
 
 	// Update existing item
-	_, err := r.client.UpdateGlobalSync(int(timeout))
+	_, err := r.client.UpdateGlobalSync(ctx, int(timeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Global sync timeout",
@@ -158,7 +158,7 @@ func (r *globalSync) Update(ctx context.Context, req resource.UpdateRequest, res
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetGlobalSync()
+	result, err := r.client.GetGlobalSync(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Global sync timeout",

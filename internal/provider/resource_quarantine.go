@@ -82,7 +82,7 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 	}
 
 	// Update existing item
-	_, err := r.client.CreateQuarantine(json)
+	_, err := r.client.CreateQuarantine(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT quarantine config",
@@ -92,7 +92,7 @@ func (r *Quarantine) Create(ctx context.Context, req resource.CreateRequest, res
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetQuarantine()
+	result, err := r.client.GetQuarantine(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT quarantine config",
@@ -121,7 +121,7 @@ func (r *Quarantine) Read(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	// Get refreshed item
-	result, err := r.client.GetQuarantine()
+	result, err := r.client.GetQuarantine(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT quarantine config",
@@ -155,7 +155,7 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 	}
 
 	// Update existing item
-	_, err := r.client.UpdateQuarantine(json)
+	_, err := r.client.UpdateQuarantine(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT quarantine config",
@@ -165,7 +165,7 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetQuarantine()
+	result, err := r.client.GetQuarantine(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT quarantine config",

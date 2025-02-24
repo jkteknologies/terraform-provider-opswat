@@ -283,7 +283,7 @@ func (r *UserRole) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	userRole, err := r.client.GetUserRole(int(state.ID.ValueInt64()))
+	userRole, err := r.client.GetUserRole(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT user role",
@@ -384,7 +384,7 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	userRole, err := r.client.GetUserRole(int(plan.ID.ValueInt64()))
+	userRole, err := r.client.GetUserRole(ctx, int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",

@@ -1,22 +1,24 @@
 package opswatClient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // GetQuarantine - Returns session config
-func (c *Client) GetQuarantine() (*Quarantine, error) {
+func (c *Client) GetQuarantine(ctx context.Context) (*Quarantine, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/quarantine", c.HostURL))
-
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/quarantine", c.HostURL))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -35,20 +37,18 @@ func (c *Client) GetQuarantine() (*Quarantine, error) {
 }
 
 // UpdateQuarantine - Updates session config
-func (c *Client) UpdateQuarantine(config Quarantine) (*Quarantine, error) {
+func (c *Client) UpdateQuarantine(ctx context.Context, config Quarantine) (*Quarantine, error) {
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("----------- REQUEST -------------")
-	fmt.Println(string(preparedJson), err)
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/quarantine, request body: %s", c.HostURL, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -67,20 +67,18 @@ func (c *Client) UpdateQuarantine(config Quarantine) (*Quarantine, error) {
 }
 
 // CreateQuarantine - Creates session config
-func (c *Client) CreateQuarantine(config Quarantine) (*Quarantine, error) {
+func (c *Client) CreateQuarantine(ctx context.Context, config Quarantine) (*Quarantine, error) {
 	preparedJson, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("----------- REQUEST -------------")
-	fmt.Println(string(preparedJson), err)
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/quarantine", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/quarantine, request body: %s", c.HostURL, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {

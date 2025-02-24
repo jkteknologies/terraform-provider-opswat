@@ -1,22 +1,24 @@
 package opswatClient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // GetScanHistory - Get processing history clean up time (clean up records older than).
-func (c *Client) GetScanHistory() (*scanHistory, error) {
+func (c *Client) GetScanHistory(ctx context.Context) (*scanHistory, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/admin/config/scanhistory", c.HostURL), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("request URL: " + fmt.Sprintf("%s/admin/config/scanhistory", c.HostURL))
-
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/scanhistory", c.HostURL))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -35,21 +37,19 @@ func (c *Client) GetScanHistory() (*scanHistory, error) {
 }
 
 // UpdateScanHistory - Update processing history clean up time (clean up records older than).
-func (c *Client) UpdateScanHistory(cleanuprange int) (*scanHistory, error) {
+func (c *Client) UpdateScanHistory(ctx context.Context, cleanuprange int) (*scanHistory, error) {
 	cleanuprangeJson := map[string]int{"cleanuprange": cleanuprange}
 	preparedJson, err := json.Marshal(cleanuprangeJson)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("----------- REQUEST -------------")
-	fmt.Println(string(preparedJson), err)
-
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/scanhistory", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/scanhistory, request body: %s", c.HostURL, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {
@@ -68,21 +68,19 @@ func (c *Client) UpdateScanHistory(cleanuprange int) (*scanHistory, error) {
 }
 
 // CreateScanHistory - Create processing history clean up time (clean up records older than).
-func (c *Client) CreateScanHistory(cleanuprange int) (*scanHistory, error) {
+func (c *Client) CreateScanHistory(ctx context.Context, cleanuprange int) (*scanHistory, error) {
 	cleanuprangeJson := map[string]int{"cleanuprange": cleanuprange}
 	preparedJson, err := json.Marshal(cleanuprangeJson)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("----------- REQUEST -------------")
-	fmt.Println(string(preparedJson), err)
-
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/admin/config/scanhistory", c.HostURL), strings.NewReader(string(preparedJson)))
 	if err != nil {
 		return nil, err
 	}
 
+	tflog.Debug(ctx, "request URL: "+fmt.Sprintf("%s/admin/config/scanhistory, request body: %s", c.HostURL, string(preparedJson)))
 	body, err := c.doRequest(req)
 
 	if err != nil {

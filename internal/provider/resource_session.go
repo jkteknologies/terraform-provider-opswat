@@ -100,7 +100,7 @@ func (r *Session) Create(ctx context.Context, req resource.CreateRequest, resp *
 	}
 
 	// Update existing session config
-	_, err := r.client.CreateSession(json)
+	_, err := r.client.CreateSession(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -110,7 +110,7 @@ func (r *Session) Create(ctx context.Context, req resource.CreateRequest, resp *
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetSession()
+	result, err := r.client.GetSession(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -142,7 +142,7 @@ func (r *Session) Read(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 
 	// Get refreshed session value from OPSWAT
-	result, err := r.client.GetSession()
+	result, err := r.client.GetSession(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",
@@ -182,7 +182,7 @@ func (r *Session) Update(ctx context.Context, req resource.UpdateRequest, resp *
 	}
 
 	// Update existing session config
-	_, err := r.client.UpdateSession(json)
+	_, err := r.client.UpdateSession(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT session config",
@@ -192,7 +192,7 @@ func (r *Session) Update(ctx context.Context, req resource.UpdateRequest, resp *
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetSession()
+	result, err := r.client.GetSession(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT session config",

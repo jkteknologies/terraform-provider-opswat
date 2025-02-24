@@ -81,7 +81,7 @@ func (r *scanHistory) Create(ctx context.Context, req resource.CreateRequest, re
 	cleanuprange := plan.Cleanuprange.ValueInt64()
 
 	// Update existing item
-	_, err := r.client.CreateScanHistory(int(cleanuprange))
+	_, err := r.client.CreateScanHistory(ctx, int(cleanuprange))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT processing history clean up time",
@@ -91,7 +91,7 @@ func (r *scanHistory) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetScanHistory()
+	result, err := r.client.GetScanHistory(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT processing history clean up time",
@@ -120,7 +120,7 @@ func (r *scanHistory) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	// Get refreshed item
-	result, err := r.client.GetScanHistory()
+	result, err := r.client.GetScanHistory(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT processing history clean up time",
@@ -153,7 +153,7 @@ func (r *scanHistory) Update(ctx context.Context, req resource.UpdateRequest, re
 	cleanuprange := plan.Cleanuprange.ValueInt64()
 
 	// Update existing item
-	_, err := r.client.UpdateScanHistory(int(cleanuprange))
+	_, err := r.client.UpdateScanHistory(ctx, int(cleanuprange))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT processing history clean up time",
@@ -163,7 +163,7 @@ func (r *scanHistory) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetScanHistory()
+	result, err := r.client.GetScanHistory(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT processing history clean up time",
