@@ -3,14 +3,13 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -205,9 +204,6 @@ func (r *UserRole) Configure(_ context.Context, req resource.ConfigureRequest, r
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-
-	tflog.Info(ctx, utils.ToString("BEFORE PLAN GET "))
-
 	// Retrieve values from plan
 	var plan userRoleModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -215,8 +211,6 @@ func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	tflog.Info(ctx, utils.ToString("AFTER PLAN GET "))
 
 	// Generate API request body from plan
 	json := opswatClient.UserRole{
@@ -248,9 +242,6 @@ func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp 
 			Download: plan.UserRights.Download,
 		},
 	}
-
-	tflog.Info(ctx, utils.ToString("REQUEST JSON"))
-	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user
 	result, err := r.client.CreateUserRole(ctx, json)
@@ -291,8 +282,6 @@ func (r *UserRole) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		)
 		return
 	}
-
-	tflog.Info(ctx, utils.ToString("READ"))
 
 	state = userRoleModel{
 		DisplayName: types.StringValue(userRole.DisplayName),
@@ -349,8 +338,6 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	tflog.Info(ctx, utils.ToString("READ IN UPDATE"))
-
 	displayname := ""
 	name := ""
 
@@ -370,8 +357,6 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			Fetch:    state.UserRights.Fetch,
 		},
 	}
-
-	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user
 	_, err := r.client.UpdateUserRole(ctx, int(plan.ID.ValueInt64()), json)

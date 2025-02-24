@@ -3,15 +3,14 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -136,8 +135,6 @@ func (r *User) Create(ctx context.Context, req resource.CreateRequest, resp *res
 		Roles:       plan.Roles,
 	}
 
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user
 	result, err := r.client.CreateUser(ctx, json)
 	if err != nil {
@@ -246,8 +243,6 @@ func (r *User) Update(ctx context.Context, req resource.UpdateRequest, resp *res
 		Password:    plan.Password.ValueString(),
 		Roles:       plan.Roles,
 	}
-
-	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing user
 	_, err := r.client.UpdateUser(ctx, int(plan.ID.ValueInt64()), json)

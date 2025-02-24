@@ -3,7 +3,6 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"regexp"
 	"strings"
 	opswatClient "terraform-provider-opswat/internal/connectivity"
@@ -232,8 +230,6 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 		})
 	}
 
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user directory
 	result, err := r.client.CreateDir(ctx, json)
 	if err != nil {
@@ -266,9 +262,6 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 
 	// Get refreshed user directory config from OPSWAT
 	dir, err := r.client.GetDir(ctx, int(state.ID.ValueInt64()))
-
-	tflog.Info(ctx, utils.ToString("DIR ID FROM STATE"))
-	tflog.Info(ctx, utils.ToString(state.ID.ValueInt64()))
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -389,8 +382,6 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 			Type:      details.Values[0].Type,
 		})
 	}
-
-	tflog.Info(ctx, utils.ToString(json))
 
 	// Update existing dir based on ID
 	_, err := r.client.UpdateDir(ctx, int(plan.ID.ValueInt64()), json)

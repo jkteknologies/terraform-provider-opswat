@@ -3,12 +3,10 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
@@ -233,8 +231,6 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 
 	// Get refreshed session value from OPSWAT
 	userDirs, err := d.client.GetDirs(ctx)
-
-	tflog.Info(ctx, utils.ToString(userDirs))
 
 	if err != nil {
 		resp.Diagnostics.AddError(
