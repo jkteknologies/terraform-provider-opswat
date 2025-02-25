@@ -11,6 +11,10 @@ description: |-
 
 ```terraform
 data "opswat_file_sync" "current" {}
+
+output "opswat_file_sync" {
+  value = data.opswat_file_sync.current
+}
 ```
 
 ## Schema

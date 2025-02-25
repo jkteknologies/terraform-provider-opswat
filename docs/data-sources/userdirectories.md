@@ -15,7 +15,7 @@ description: |-
 data "opswat_userdirectories" "current" {}
 
 output "opswat_userdirectories" {
-  value = data.opswat_userdirectory.current
+  value = data.opswat_userdirectories.current
 }
 ```
 
