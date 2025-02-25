@@ -7,6 +7,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 # Releases need permissions to read and write the repository contents.
 # GitHub considers creating releases and uploading assets as writing contents.
@@ -32,8 +33,10 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@026299872805cb2db698e02dd7fb506a4da5122d # v6.2.0
+        uses: goreleaser/goreleaser-action@v6
         with:
+          distribution: goreleaser # or 'goreleaser-pro'
+          version: "~> v2" # or 'latest', 'nightly', semver
           args: release --clean
         env:
           # GitHub sets the GITHUB_TOKEN secret automatically.
