@@ -52,12 +52,14 @@ terraform {
 ## Developing the Provider
 ---------------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.19+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you are new to plugin development, study the [Terraform Plugin Framework tutorial](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-provider) first.
+
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.23+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+
+### Windows development
 
 To compile the provider, run `go install .`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
-
-On windows
 ```shell
 $ cd C:\Users\xxx\AppData\Roaming
 ```
@@ -69,6 +71,27 @@ provider_installation {
 
   dev_overrides {
     "opswat" = "C:/Users/xxx/go/bin" #GOBIN location
+  }
+
+  direct {}
+}
+```
+
+### Linux development
+
+To compile the provider, run `go install .`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+
+```shell
+cd ~/go/bin
+```
+
+To test local build - create/edit `.terraformrc` file in home directory:
+
+```text
+provider_installation {
+
+  dev_overrides {
+    "opswat" = "/home/xxx/go/bin" #GOBIN location
   }
 
   direct {}
