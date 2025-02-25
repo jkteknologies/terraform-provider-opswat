@@ -3,6 +3,10 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,9 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"regexp"
-	"strings"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -93,8 +94,9 @@ func (r *Dir) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource
 					"valid_until": schema.StringAttribute{
 						Required: true,
 					},
-					"x509_cert": schema.StringAttribute{
-						Required: true,
+					"x509_cert": schema.ListAttribute{
+						ElementType: types.StringType,
+						Required:    true,
 					},
 					"login_method": schema.ObjectAttribute{
 						Required: true,
@@ -166,7 +168,6 @@ func (r *Dir) Configure(_ context.Context, req resource.ConfigureRequest, resp *
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected *opswatClient.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
-
 		return
 	}
 
@@ -213,9 +214,10 @@ func (r *Dir) Create(ctx context.Context, req resource.CreateRequest, resp *reso
 				Redirect: plan.Idp.LogoutMethod.Redirect.ValueString(),
 			},
 			ValidUntil: plan.Idp.ValidUntil.ValueString(),
-			X509Cert:   plan.Idp.X509Cert.ValueString(),
 		},
 	}
+
+	json.Idp.X509Cert = append(json.Idp.X509Cert, plan.Idp.X509Cert...)
 
 	for n, details := range plan.Role.Details {
 		json.Role.Details = append(json.Role.Details, opswatClient.Details{
@@ -297,13 +299,14 @@ func (r *Dir) Read(ctx context.Context, req resource.ReadRequest, resp *resource
 				Redirect: types.StringValue(dir.Idp.LogoutMethod.Redirect),
 			},
 			ValidUntil: types.StringValue(dir.Idp.ValidUntil),
-			X509Cert:   types.StringValue(dir.Idp.X509Cert),
 		},
 		Role: RoleModel{
 			Details: []DetailsModel{},
 			Option:  types.StringValue(dir.Role.Option),
 		},
 	}
+
+	state.Idp.X509Cert = append(state.Idp.X509Cert, dir.Idp.X509Cert...)
 
 	for n, details := range dir.Role.Details {
 		state.Role.Details = append(state.Role.Details, DetailsModel{
@@ -366,9 +369,10 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 				Redirect: plan.Idp.LogoutMethod.Redirect.ValueString(),
 			},
 			ValidUntil: plan.Idp.ValidUntil.ValueString(),
-			X509Cert:   plan.Idp.X509Cert.ValueString(),
 		},
 	}
+
+	json.Idp.X509Cert = append(json.Idp.X509Cert, plan.Idp.X509Cert...)
 
 	for n, details := range plan.Role.Details {
 		json.Role.Details = append(json.Role.Details, opswatClient.Details{
@@ -429,13 +433,14 @@ func (r *Dir) Update(ctx context.Context, req resource.UpdateRequest, resp *reso
 				Redirect: types.StringValue(dir.Idp.LogoutMethod.Redirect),
 			},
 			ValidUntil: types.StringValue(dir.Idp.ValidUntil),
-			X509Cert:   types.StringValue(dir.Idp.X509Cert),
 		},
 		Role: RoleModel{
 			Details: []DetailsModel{},
 			Option:  types.StringValue(dir.Role.Option),
 		},
 	}
+
+	plan.Idp.X509Cert = append(plan.Idp.X509Cert, dir.Idp.X509Cert...)
 
 	for n, details := range dir.Role.Details {
 		plan.Role.Details = append(plan.Role.Details, DetailsModel{

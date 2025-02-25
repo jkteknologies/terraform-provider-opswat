@@ -28,7 +28,7 @@ resource "opswat_userdirectory" "new" {
       redirect = "https://login.microsoftonline.com/xxx/saml2"
     }
     valid_until = ""
-    x509_cert = "xxx"
+    x509_cert = ["xxx"]
   }
   role = {
     details = [{
@@ -44,7 +44,7 @@ resource "opswat_userdirectory" "new" {
   sp = {
     enable_idp_initiated = false
     entity_id = "xxx"
-    login_url = "https://opswat.dev.av.xxx.cn/ssologin/saml/XXXX"
+    login_url = "https://opswat.xxx.com/ssologin/saml/XXXX"
     support_entity_id = true
     support_logout_url = false
     support_private_key = false
@@ -68,7 +68,7 @@ Required:
     - `logout_method`
         - `redirect` - (String) SAML-P sign-on endpoint (For SAML integration)
     - `valid_until` - (String) ""
-    - `x509_cert` - (String) Valid certificate from https://login.microsoftonline.com/xxx/federationmetadata/2007-06/federationmetadata.xml -> EntityDescriptor -> Signature -> KeyInfo -> X509Data -> X509Certificate (For SAML integration)
+    - `x509_cert` - (List of strings) Valid certificates from https://login.microsoftonline.com/xxx/federationmetadata/2007-06/federationmetadata.xml -> EntityDescriptor -> Signature -> KeyInfo -> X509Data -> X509Certificate (For SAML integration)
 - `role` - (Nested object) Roles mapping
     - `details` - (List of objects)
         - `key` - (String) Role claim (For example: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" for Azure AD SAML integration)

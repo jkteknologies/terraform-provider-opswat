@@ -34,7 +34,7 @@ Read-only:
   - `logout_method`
     - `redirect` - (String) SAML-P sign-on endpoint (For SAML integration)
   - `valid_until` - (String) ""
-  - `x509_cert` - (String) Valid certificate from https://login.microsoftonline.com/xxx/federationmetadata/2007-06/federationmetadata.xml -> EntityDescriptor -> Signature -> KeyInfo -> X509Data -> X509Certificate (For SAML integration)
+  - `x509_cert` - (List of strings) Valid certificate from https://login.microsoftonline.com/xxx/federationmetadata/2007-06/federationmetadata.xml -> EntityDescriptor -> Signature -> KeyInfo -> X509Data -> X509Certificate (For SAML integration)
 - `role` - (Nested object) Roles mapping
   - `details` - (List of objects)
     - `key` - (String) Role claim (For example: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" for Azure AD SAML integration)

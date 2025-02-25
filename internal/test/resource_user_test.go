@@ -26,7 +26,7 @@ resource "opswat_user" "new" {
   api_key = "e4b6e5d6d0e40df0da5e6b2aa3bc98b29d25"
   directory_id = 1
   display_name = "TEST"
-  email = "null@av.xxx.cn"
+  email = "null@opswat.xxx.com"
   name = "TEST"
   roles = [
     "5" // project related role
