@@ -73,7 +73,7 @@ type timeoutModel struct {
 func (d *globalSyncDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state timeoutModel
 
-	result, err := d.client.GetGlobalSync()
+	result, err := d.client.GetGlobalSync(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read OPSWAT Global sync timeout",

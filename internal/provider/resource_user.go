@@ -3,15 +3,14 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -136,10 +135,8 @@ func (r *User) Create(ctx context.Context, req resource.CreateRequest, resp *res
 		Roles:       plan.Roles,
 	}
 
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user
-	result, err := r.client.CreateUser(json)
+	result, err := r.client.CreateUser(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user",
@@ -169,7 +166,7 @@ func (r *User) Read(ctx context.Context, req resource.ReadRequest, resp *resourc
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	user, err := r.client.GetUser(int(state.ID.ValueInt64()))
+	user, err := r.client.GetUser(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -247,10 +244,8 @@ func (r *User) Update(ctx context.Context, req resource.UpdateRequest, resp *res
 		Roles:       plan.Roles,
 	}
 
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user
-	_, err := r.client.UpdateUser(int(plan.ID.ValueInt64()), json)
+	_, err := r.client.UpdateUser(ctx, int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user",
@@ -260,7 +255,7 @@ func (r *User) Update(ctx context.Context, req resource.UpdateRequest, resp *res
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	user, err := r.client.GetUser(int(plan.ID.ValueInt64()))
+	user, err := r.client.GetUser(ctx, int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -299,7 +294,7 @@ func (r *User) Delete(ctx context.Context, req resource.DeleteRequest, resp *res
 	}
 
 	// Update existing dir based on ID
-	err := r.client.DeleteUser(int(state.ID.ValueInt64()))
+	err := r.client.DeleteUser(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT user",

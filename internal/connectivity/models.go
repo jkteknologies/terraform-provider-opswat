@@ -145,7 +145,7 @@ type Idp struct {
 	LoginMethod        LoginMethod  `json:"login_method"`
 	LogoutMethod       LogoutMethod `json:"logout_method"`
 	ValidUntil         string       `json:"valid_until"`
-	X509Cert           string       `json:"x509_cert"`
+	X509Cert           []string     `json:"x509_cert"`
 }
 
 type LoginMethod struct {

@@ -3,14 +3,13 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -205,9 +204,6 @@ func (r *UserRole) Configure(_ context.Context, req resource.ConfigureRequest, r
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-
-	tflog.Info(ctx, utils.ToString("BEFORE PLAN GET "))
-
 	// Retrieve values from plan
 	var plan userRoleModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -215,8 +211,6 @@ func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	tflog.Info(ctx, utils.ToString("AFTER PLAN GET "))
 
 	// Generate API request body from plan
 	json := opswatClient.UserRole{
@@ -249,11 +243,8 @@ func (r *UserRole) Create(ctx context.Context, req resource.CreateRequest, resp 
 		},
 	}
 
-	tflog.Info(ctx, utils.ToString("REQUEST JSON"))
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user
-	result, err := r.client.CreateUserRole(json)
+	result, err := r.client.CreateUserRole(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT user role",
@@ -283,7 +274,7 @@ func (r *UserRole) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	userRole, err := r.client.GetUserRole(int(state.ID.ValueInt64()))
+	userRole, err := r.client.GetUserRole(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT user role",
@@ -291,8 +282,6 @@ func (r *UserRole) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		)
 		return
 	}
-
-	tflog.Info(ctx, utils.ToString("READ"))
 
 	state = userRoleModel{
 		DisplayName: types.StringValue(userRole.DisplayName),
@@ -349,8 +338,6 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	tflog.Info(ctx, utils.ToString("READ IN UPDATE"))
-
 	displayname := ""
 	name := ""
 
@@ -371,10 +358,8 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		},
 	}
 
-	tflog.Info(ctx, utils.ToString(json))
-
 	// Update existing user
-	_, err := r.client.UpdateUserRole(int(plan.ID.ValueInt64()), json)
+	_, err := r.client.UpdateUserRole(ctx, int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT user",
@@ -384,7 +369,7 @@ func (r *UserRole) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	userRole, err := r.client.GetUserRole(int(plan.ID.ValueInt64()))
+	userRole, err := r.client.GetUserRole(ctx, int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -419,7 +404,7 @@ func (r *UserRole) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 
 	// Update existing dir based on ID
-	err := r.client.DeleteUserRole(int(state.ID.ValueInt64()))
+	err := r.client.DeleteUserRole(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT user role",

@@ -81,7 +81,7 @@ func (r *Queue) Create(ctx context.Context, req resource.CreateRequest, resp *re
 	queue := plan.MaxQueuePerAgent.ValueInt64()
 
 	// Add new scan queue
-	_, err := r.client.CreateQueue(int(queue))
+	_, err := r.client.CreateQueue(ctx, int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Scan agent queue count",
@@ -91,7 +91,7 @@ func (r *Queue) Create(ctx context.Context, req resource.CreateRequest, resp *re
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetQueue()
+	result, err := r.client.GetQueue(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Scan agent queue count",
@@ -120,7 +120,7 @@ func (r *Queue) Read(ctx context.Context, req resource.ReadRequest, resp *resour
 	}
 
 	// Get refreshed item
-	result, err := r.client.GetQueue()
+	result, err := r.client.GetQueue(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Scan agent queue count",
@@ -153,7 +153,7 @@ func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *re
 	queue := plan.MaxQueuePerAgent.ValueInt64()
 
 	// Update existing item
-	_, err := r.client.UpdateQueue(int(queue))
+	_, err := r.client.UpdateQueue(ctx, int(queue))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT Scan agent queue count",
@@ -163,7 +163,7 @@ func (r *Queue) Update(ctx context.Context, req resource.UpdateRequest, resp *re
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetQueue()
+	result, err := r.client.GetQueue(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT Scan agent queue count",

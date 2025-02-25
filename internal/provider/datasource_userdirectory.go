@@ -3,13 +3,12 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
-	"github.com/emirpasic/gods/utils"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -76,7 +75,7 @@ type IDPModel struct {
 	LoginMethod        LoginMethodModel  `tfsdk:"login_method"`
 	LogoutMethod       LogoutMethodModel `tfsdk:"logout_method"`
 	ValidUntil         types.String      `tfsdk:"valid_until"`
-	X509Cert           types.String      `tfsdk:"x509_cert"`
+	X509Cert           []string          `tfsdk:"x509_cert"`
 }
 
 type LoginMethodModel struct {
@@ -144,8 +143,9 @@ func (d *userDirectory) Schema(_ context.Context, _ datasource.SchemaRequest, re
 								"valid_until": schema.StringAttribute{
 									Computed: true,
 								},
-								"x509_cert": schema.StringAttribute{
-									Computed: true,
+								"x509_cert": schema.ListAttribute{
+									ElementType: types.StringType,
+									Computed:    true,
 								},
 								"login_method": schema.ObjectAttribute{
 									Computed: true,
@@ -232,9 +232,7 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 	var state dirModels
 
 	// Get refreshed session value from OPSWAT
-	userDirs, err := d.client.GetDirs()
-
-	tflog.Info(ctx, utils.ToString(userDirs))
+	userDirs, err := d.client.GetDirs(ctx)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -271,13 +269,14 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 					Redirect: types.StringValue(result.Idp.LogoutMethod.Redirect),
 				},
 				ValidUntil: types.StringValue(result.Idp.ValidUntil),
-				X509Cert:   types.StringValue(result.Idp.X509Cert),
 			},
 			Role: RoleModel{
 				Details: []DetailsModel{},
 				Option:  types.StringValue(result.Role.Option),
 			},
 		}
+
+		dirState.Idp.X509Cert = append(dirState.Idp.X509Cert, result.Idp.X509Cert...)
 
 		for n, details := range result.Role.Details {
 			dirState.Role.Details = append(dirState.Role.Details, DetailsModel{
@@ -293,7 +292,6 @@ func (d *userDirectory) Read(ctx context.Context, req datasource.ReadRequest, re
 		}
 
 		state.Dirs = append(state.Dirs, dirState)
-
 	}
 
 	// Set state

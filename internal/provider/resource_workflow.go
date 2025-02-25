@@ -3,14 +3,15 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+	"unicode"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
-	"unicode"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -234,7 +235,7 @@ func (r *Workflow) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Add new workflow
-	workflow, err := r.client.CreateWorkflow(json)
+	workflow, err := r.client.CreateWorkflow(ctx, json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating OPSWAT workflow",
@@ -265,7 +266,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	// Get refreshed workflow config from OPSWAT
-	workflow, err := r.client.GetWorkflow(int(state.ID.ValueInt64()))
+	workflow, err := r.client.GetWorkflow(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -292,7 +293,6 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		ZoneID:                               types.Int64Value(int64(workflow.ZoneId)),
 		ScanAllowed:                          append(workflow.ScanAllowed),
 		UserAgents:                           append(workflow.UserAgents),
-		//PrefHashes:                           PrefHashesModel{DSAdvancedSettingHash: types.StringValue(workflow.PrefHashes.DSADVANCEDSETTINGHASH)},
 		OptionValues: OptionValuesModel{
 			ArchiveHandlingMaxNumberFiles:           types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxNumberFiles)),
 			ArchiveHandlingMaxRecursionLevel:        types.Int64Value(int64(workflow.OptionValues.ArchiveHandlingMaxRecursionLevel)),
@@ -314,13 +314,10 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 			VulFilescanTimeoutVulnerabilityScanning: types.Int64Value(int64(workflow.OptionValues.VulFilescanTimeoutVulnerabilityScanning)),
 		}}
 
-	//fmt.Println("PARSED WORKFLOWS") test
-	//spew.Dump(workflowState)
-
 	for _, resultsallowed := range workflow.ResultAllowed {
 		// Opswat is using '#' symbol as All roles marker
 		if !unicode.IsDigit(rune(resultsallowed.Role)) {
-			state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
+		state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
 				Role:       types.Int64Value(int64(resultsallowed.Role)),
 				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
 			})
@@ -331,10 +328,6 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 			})
 		}
 	}
-
-	//workflowState.PrefHashes = append(workflowState.PrefHashes, PrefHashesModel{
-	//	DSAdvancedSettingHash: types.Int64Value(int64(prefhashes.DSAdvancedSettingHash)),
-	//})
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -405,7 +398,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Update existing workflow based on ID
-	_, err := r.client.UpdateWorkflow(int(plan.ID.ValueInt64()), json)
+	_, err := r.client.UpdateWorkflow(ctx, int(plan.ID.ValueInt64()), json)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating OPSWAT workflow",
@@ -415,7 +408,7 @@ func (r *Workflow) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Fetch updated items
-	result, err := r.client.GetWorkflow(int(plan.ID.ValueInt64()))
+	result, err := r.client.GetWorkflow(ctx, int(plan.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading OPSWAT workflow",
@@ -492,7 +485,7 @@ func (r *Workflow) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 
 	// Update existing workflow based on ID
-	err := r.client.DeleteWorkflow(int(state.ID.ValueInt64()))
+	err := r.client.DeleteWorkflow(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Delete OPSWAT workflow",
