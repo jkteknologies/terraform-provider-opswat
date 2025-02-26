@@ -3,16 +3,19 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &Session{}
-	_ resource.ResourceWithConfigure = &Session{}
+	_ resource.Resource                = &Session{}
+	_ resource.ResourceWithConfigure   = &Session{}
+	_ resource.ResourceWithImportState = &Session{}
 )
 
 // NewSession is a helper function to simplify the provider implementation.
@@ -215,4 +218,9 @@ func (r *Session) Update(ctx context.Context, req resource.UpdateRequest, resp *
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *Session) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+}
+
+func (r *Session) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

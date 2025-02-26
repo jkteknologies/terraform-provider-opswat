@@ -1,9 +1,10 @@
 package opswatProvider
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccFileSyncDataSource(t *testing.T) {

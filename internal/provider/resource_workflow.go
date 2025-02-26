@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -16,8 +17,9 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &Workflow{}
-	_ resource.ResourceWithConfigure = &Workflow{}
+	_ resource.Resource                = &Workflow{}
+	_ resource.ResourceWithConfigure   = &Workflow{}
+	_ resource.ResourceWithImportState = &Workflow{}
 )
 
 // NewWorkflow is a helper function to simplify the provider implementation.
@@ -317,7 +319,7 @@ func (r *Workflow) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	for _, resultsallowed := range workflow.ResultAllowed {
 		// Opswat is using '#' symbol as All roles marker
 		if !unicode.IsDigit(rune(resultsallowed.Role)) {
-		state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
+			state.ResultAllowed = append(state.ResultAllowed, ResultAllowedModel{
 				Role:       types.Int64Value(int64(resultsallowed.Role)),
 				Visibility: types.Int64Value(int64(resultsallowed.Visibility)),
 			})
@@ -493,4 +495,9 @@ func (r *Workflow) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		)
 		return
 	}
+}
+
+func (r *Workflow) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

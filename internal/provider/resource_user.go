@@ -5,6 +5,7 @@ import (
 	"fmt"
 	opswatClient "terraform-provider-opswat/internal/connectivity"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -15,8 +16,9 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &User{}
-	_ resource.ResourceWithConfigure = &User{}
+	_ resource.Resource                = &User{}
+	_ resource.ResourceWithConfigure   = &User{}
+	_ resource.ResourceWithImportState = &User{}
 )
 
 // NewUser is a helper function to simplify the provider implementation.
@@ -302,4 +304,9 @@ func (r *User) Delete(ctx context.Context, req resource.DeleteRequest, resp *res
 		)
 		return
 	}
+}
+
+func (r *User) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
