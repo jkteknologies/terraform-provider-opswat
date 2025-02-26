@@ -5,7 +5,7 @@ description: |-
 ---
 
 # OPSWAT Provider
-OPSWAT MetaDefenter community provider to configure environment.  
+OPSWAT MetaDefender Core community provider to configure environment.  
 
 Refs:
 - docs - https://docs.opswat.com/mdcore

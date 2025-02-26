@@ -3,16 +3,19 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &scanHistory{}
-	_ resource.ResourceWithConfigure = &scanHistory{}
+	_ resource.Resource                = &scanHistory{}
+	_ resource.ResourceWithConfigure   = &scanHistory{}
+	_ resource.ResourceWithImportState = &scanHistory{}
 )
 
 // NewScanHistory is a helper function to simplify the provider implementation.
@@ -183,4 +186,9 @@ func (r *scanHistory) Update(ctx context.Context, req resource.UpdateRequest, re
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *scanHistory) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+}
+
+func (r *scanHistory) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

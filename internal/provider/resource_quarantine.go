@@ -3,16 +3,19 @@ package opswatProvider
 import (
 	"context"
 	"fmt"
+	opswatClient "terraform-provider-opswat/internal/connectivity"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	opswatClient "terraform-provider-opswat/internal/connectivity"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &Quarantine{}
-	_ resource.ResourceWithConfigure = &Quarantine{}
+	_ resource.Resource                = &Quarantine{}
+	_ resource.ResourceWithConfigure   = &Quarantine{}
+	_ resource.ResourceWithImportState = &Quarantine{}
 )
 
 // NewQuarantine is a helper function to simplify the provider implementation.
@@ -185,4 +188,9 @@ func (r *Quarantine) Update(ctx context.Context, req resource.UpdateRequest, res
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *Quarantine) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+}
+
+func (r *Quarantine) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -1,8 +1,9 @@
 package opswatProvider
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccWorkflowResource(t *testing.T) {

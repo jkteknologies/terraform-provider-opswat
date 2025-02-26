@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -19,8 +20,9 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &Dir{}
-	_ resource.ResourceWithConfigure = &Dir{}
+	_ resource.Resource                = &Dir{}
+	_ resource.ResourceWithConfigure   = &Dir{}
+	_ resource.ResourceWithImportState = &Dir{}
 )
 
 // NewDir is a helper function to simplify the provider implementation.
@@ -481,4 +483,9 @@ func (r *Dir) Delete(ctx context.Context, req resource.DeleteRequest, resp *reso
 		)
 		return
 	}
+}
+
+func (r *Dir) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
